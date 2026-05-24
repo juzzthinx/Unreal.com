@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UNREAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black: #080808;
+  --white: #f5f5f5;
+  --grey1: #111111;
+  --grey2: #1c1c1c;
+  --grey3: #2a2a2a;
+  --grey4: #444444;
+  --grey5: #888888;
+  --grey6: #bbbbbb;
+  --border: #1f1f1f;
+  --radius: 2px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  cursor: default;
+}
+
+/* GRAIN OVERLAY */
+body::after {
+  content:'';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: var(--black);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 6px;
+  color: var(--white);
+  line-height: 1;
+  user-select: none;
+}
+.nav-logo span { color: var(--grey5); }
+
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.nav-icon {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--grey5);
+  cursor: pointer;
+  transition: color .2s;
+  font-size: 16px;
+}
+.nav-icon:hover { color: var(--white); }
+.nav-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--grey3);
+  border: 1px solid var(--grey4);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--grey5);
+  transition: border-color .2s;
+}
+.nav-avatar:hover { border-color: var(--white); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  min-height: 100vh;
+  padding-top: 52px;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar-left {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  width: 240px;
+  height: calc(100vh - 52px);
+  border-right: 1px solid var(--border);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.sidebar-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--grey4);
+  text-transform: uppercase;
+  padding: 16px 10px 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--grey5);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all .15s;
+  border: 1px solid transparent;
+}
+.sidebar-item:hover { color: var(--white); background: var(--grey2); }
+.sidebar-item.active { color: var(--white); background: var(--grey2); border-color: var(--border); }
+.sidebar-item svg { width:16px; height:16px; flex-shrink:0; }
+
+.sidebar-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--grey5);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: color .15s;
+  border-radius: var(--radius);
+}
+.sidebar-tag:hover { color: var(--white); }
+.tag-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--grey4);
+  flex-shrink: 0;
+}
+
+.upload-btn {
+  margin-top: auto;
+  padding: 11px;
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all .2s;
+  text-align: center;
+}
+.upload-btn:hover { background: var(--grey6); }
+
+/* ── MAIN FEED ── */
+.feed {
+  grid-column: 2;
+  margin-left: 240px;
+  margin-right: 300px;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* STORIES BAR */
+.stories-bar {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.stories-bar::-webkit-scrollbar { display: none; }
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.story-ring {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--grey3);
+  padding: 2px;
+  transition: border-color .2s;
+}
+.story-ring.unseen { border-color: var(--white); }
+.story-ring:hover { border-color: var(--grey5); }
+.story-avatar {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: var(--grey2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  overflow: hidden;
+}
+.story-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey5);
+  letter-spacing: 0.5px;
+  max-width: 56px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FEED TABS */
+.feed-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.feed-tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--grey4);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+  transition: all .2s;
+}
+.feed-tab:hover { color: var(--grey6); }
+.feed-tab.active { color: var(--white); border-bottom-color: var(--white); }
+
+/* POST CARD */
+.post {
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: none; }
+}
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+.post-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.post-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--grey2);
+  border: 1px solid var(--grey3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.post-username {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--white);
+}
+.post-model {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey5);
+  letter-spacing: 1px;
+}
+.post-more {
+  color: var(--grey4);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+  transition: color .2s;
+}
+.post-more:hover { color: var(--white); }
+
+/* IMAGE GRID — Instagram square */
+.post-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--grey2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 64px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.post-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(15%);
+  transition: filter .3s, transform .3s;
+}
+.post-image:hover img { filter: grayscale(0%); transform: scale(1.01); }
+
+/* image placeholder gradients — styled AI art feel */
+.post-image.p1 { background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 40%, #0a0a0a 100%); }
+.post-image.p2 { background: linear-gradient(160deg, #111 0%, #222 50%, #0d0d0d 100%); }
+.post-image.p3 { background: linear-gradient(120deg, #080808 0%, #181818 60%, #0c0c0c 100%); }
+
+.post-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #00000088 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity .3s;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+.post-image:hover .post-image-overlay { opacity: 1; }
+.post-image-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #ffffffaa;
+  background: #00000066;
+  padding: 3px 8px;
+  border-radius: 2px;
+  backdrop-filter: blur(4px);
+}
+
+/* ACTIONS */
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px 6px;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--grey5);
+  cursor: pointer;
+  font-size: 13px;
+  transition: color .15s;
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.action-btn:hover { color: var(--white); }
+.action-btn svg { width:20px; height:20px; }
+.action-btn.liked { color: var(--white); }
+.action-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--grey5);
+}
+.action-spacer { margin-left: auto; }
+
+/* REACTIONS */
+.reaction-bar {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 8px;
+}
+.reaction {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--grey5);
+  cursor: pointer;
+  transition: all .2s;
+}
+.reaction:hover, .reaction.active { border-color: var(--white); color: var(--white); }
+
+/* CAPTION */
+.post-caption {
+  padding: 0 16px 6px;
+  font-size: 12px;
+  color: var(--grey6);
+  line-height: 1.6;
+}
+.post-caption strong { color: var(--white); font-weight: 500; }
+
+/* PROMPT REVEAL */
+.prompt-reveal {
+  margin: 0 16px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.prompt-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: var(--grey1);
+  transition: background .2s;
+}
+.prompt-toggle:hover { background: var(--grey2); }
+.prompt-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--grey5);
+}
+.prompt-arrow { color: var(--grey4); font-size: 10px; transition: transform .2s; }
+.prompt-arrow.open { transform: rotate(180deg); }
+.prompt-text {
+  display: none;
+  padding: 10px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--grey6);
+  line-height: 1.7;
+  background: var(--grey1);
+  border-top: 1px solid var(--border);
+}
+.prompt-text.open { display: block; }
+.prompt-copy {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--grey4);
+  cursor: pointer;
+  transition: color .2s;
+  text-transform: uppercase;
+}
+.prompt-copy:hover { color: var(--white); }
+
+/* COMMENTS */
+.post-comments {
+  padding: 0 16px 6px;
+  font-size: 11px;
+  color: var(--grey5);
+  cursor: pointer;
+}
+.post-comments:hover { color: var(--grey6); }
+.post-time {
+  padding: 0 16px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey4);
+  letter-spacing: 1px;
+}
+
+/* COMMENT INPUT */
+.comment-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 14px;
+  border-top: 1px solid var(--border);
+}
+.comment-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--white);
+  placeholder-color: var(--grey4);
+}
+.comment-input::placeholder { color: var(--grey4); }
+.comment-post {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--grey5);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color .2s;
+}
+.comment-post:hover { color: var(--white); }
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar-right {
+  position: fixed;
+  top: 52px;
+  right: 0;
+  width: 300px;
+  height: calc(100vh - 52px);
+  border-left: 1px solid var(--border);
+  padding: 24px 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.sidebar-right::-webkit-scrollbar { display: none; }
+
+.right-section { margin-bottom: 28px; }
+.right-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--grey4);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* SUGGESTED */
+.suggested-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  cursor: pointer;
+}
+.sug-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--grey2);
+  border: 1px solid var(--grey3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.sug-info { flex: 1; min-width: 0; }
+.sug-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sug-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey5);
+  letter-spacing: 0.5px;
+}
+.follow-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--grey5);
+  background: none;
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.follow-btn:hover, .follow-btn.following { border-color: var(--white); color: var(--white); }
+
+/* TRENDING TAGS */
+.trend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.trend-item:last-child { border-bottom: none; }
+.trend-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--grey6);
+  transition: color .2s;
+}
+.trend-item:hover .trend-tag { color: var(--white); }
+.trend-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey4);
+}
+
+/* MOVEMENTS */
+.movement-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  cursor: pointer;
+}
+.movement-bar {
+  width: 28px; height: 4px;
+  background: var(--grey3);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.movement-name {
+  font-size: 12px;
+  color: var(--grey6);
+  flex: 1;
+  transition: color .2s;
+}
+.movement-item:hover .movement-name { color: var(--white); }
+.movement-posts {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey4);
+}
+
+/* MODAL — Upload */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--grey1);
+  border: 1px solid var(--grey3);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn .25s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:none; } }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--white);
+}
+.modal-close {
+  background: none; border: none;
+  color: var(--grey5); cursor: pointer;
+  font-size: 20px; line-height: 1;
+  transition: color .2s;
+}
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 24px 20px; }
+
+.upload-drop {
+  border: 1px dashed var(--grey3);
+  border-radius: var(--radius);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  margin-bottom: 20px;
+}
+.upload-drop:hover { border-color: var(--grey5); background: var(--grey2); }
+.upload-drop input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-icon-big { font-size: 36px; margin-bottom: 10px; }
+.upload-drop-text { font-size: 13px; color: var(--grey5); }
+.upload-drop-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey4); letter-spacing: 1.5px; margin-top: 6px; }
+.upload-preview-img { max-width:100%; border-radius:var(--radius); display:none; margin-bottom:16px; }
+
+.form-row { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--grey4);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--grey2);
+  border: 1px solid var(--grey3);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--grey5); }
+.form-textarea { resize: vertical; min-height: 70px; font-size: 12px; }
+.form-select option { background: var(--grey2); }
+
+/* prompt toggle in modal */
+.prompt-share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--grey2);
+  border: 1px solid var(--grey3);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.prompt-share-label { font-size: 12px; color: var(--grey6); }
+.prompt-share-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey4); letter-spacing: 1px; }
+.toggle {
+  width: 36px; height: 20px;
+  background: var(--grey3);
+  border-radius: 10px;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--white); }
+.toggle::after {
+  content:'';
+  position:absolute;
+  top:3px; left:3px;
+  width:14px; height:14px;
+  border-radius:50%;
+  background: var(--grey5);
+  transition: all .2s;
+}
+.toggle.on::after { left:19px; background: var(--black); }
+
+.publish-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+}
+.publish-btn:hover { background: var(--grey6); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--white);
+  color: var(--black);
+  padding: 10px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  border-radius: var(--radius);
+  z-index: 9998;
+  opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar-left { display: none; }
+  .sidebar-right { display: none; }
+  .feed { margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">UNREAL<span>.</span></div>
+  <div class="nav-icons">
+    <!-- search -->
+    <div class="nav-icon" title="Search">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+    </div>
+    <!-- explore -->
+    <div class="nav-icon" title="Explore">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/></svg>
+    </div>
+    <!-- upload -->
+    <div class="nav-icon" title="Post" onclick="openUpload()">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+    </div>
+    <!-- notifications -->
+    <div class="nav-icon" title="Notifications">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="nav-avatar" title="Profile">NZ</div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="sidebar-item active">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Feed
+    </div>
+    <div class="sidebar-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Explore
+    </div>
+    <div class="sidebar-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Featured
+    </div>
+    <div class="sidebar-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Following
+    </div>
+    <div class="sidebar-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Saved
+    </div>
+
+    <div class="sidebar-section-label">Movements</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#fff"></div> Nusantara AI</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#888"></div> Brutalist AI</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#555"></div> Horror Render</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#777"></div> Architecture AI</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#aaa"></div> Afrofuturism</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#666"></div> Dreamcore</div>
+    <div class="sidebar-tag"><div class="tag-dot" style="background:#444"></div> Glitch Realism</div>
+
+    <div class="sidebar-section-label">Tools</div>
+    <div class="sidebar-tag"><div class="tag-dot"></div> Midjourney</div>
+    <div class="sidebar-tag"><div class="tag-dot"></div> Flux</div>
+    <div class="sidebar-tag"><div class="tag-dot"></div> DALL·E</div>
+    <div class="sidebar-tag"><div class="tag-dot"></div> Firefly</div>
+    <div class="sidebar-tag"><div class="tag-dot"></div> Stable Diffusion</div>
+
+    <button class="upload-btn" onclick="openUpload()">+ Post</button>
+  </aside>
+
+  <!-- FEED -->
+  <main class="feed">
+
+    <!-- STORIES -->
+    <div class="stories-bar" id="storiesBar"></div>
+
+    <!-- TABS -->
+    <div class="feed-tabs">
+      <div class="feed-tab active" onclick="setTab(this)">FOR YOU</div>
+      <div class="feed-tab" onclick="setTab(this)">FOLLOWING</div>
+      <div class="feed-tab" onclick="setTab(this)">MOVEMENTS</div>
+      <div class="feed-tab" onclick="setTab(this)">FEATURED</div>
+    </div>
+
+    <!-- POSTS -->
+    <div id="postsFeed"></div>
+
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+
+    <div class="right-section">
+      <div class="right-label">Suggested</div>
+      <div id="suggestedList"></div>
+    </div>
+
+    <div class="right-section">
+      <div class="right-label">Trending Tags</div>
+      <div id="trendingList"></div>
+    </div>
+
+    <div class="right-section">
+      <div class="right-label">Movements</div>
+      <div id="movementsList"></div>
+    </div>
+
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey4);letter-spacing:1px;line-height:2">
+      About · Terms · Privacy<br>
+      © 2026 UNREAL
+    </div>
+
+  </aside>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-overlay" id="uploadModal" onclick="if(event.target===this)closeUpload()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">NEW POST</div>
+      <button class="modal-close" onclick="closeUpload()">✕</button>
+    </div>
+    <div class="modal-body">
+      <img class="upload-preview-img" id="uploadPreviewImg"/>
+      <div class="upload-drop" id="uploadDrop">
+        <input type="file" accept="image/*" onchange="handleUpload(event)"/>
+        <div class="upload-icon-big">◻</div>
+        <div class="upload-drop-text">Drop your AI art here</div>
+        <div class="upload-drop-sub">JPG · PNG · WEBP · up to 20MB</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Caption</label>
+        <textarea class="form-textarea" id="postCaption" placeholder="What's the story behind this render..."></textarea>
+      </div>
+      <div class="form-row">
+        <label class="form-label">AI Tool Used</label>
+        <select class="form-select" id="postTool">
+          <option value="">Select tool...</option>
+          <option>Midjourney</option>
+          <option>Flux</option>
+          <option>DALL·E 3</option>
+          <option>Stable Diffusion</option>
+          <option>Adobe Firefly</option>
+          <option>Runway</option>
+          <option>Ideogram</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Movement / Tag</label>
+        <input class="form-input" id="postTag" placeholder="e.g. Nusantara AI, Brutalist, Horror Render..."/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Prompt (optional — share with community)</label>
+        <textarea class="form-textarea" id="postPrompt" placeholder="Paste your prompt here if you'd like to share it..."></textarea>
+      </div>
+      <div class="prompt-share-row" onclick="togglePromptShare()" id="promptShareRow">
+        <div>
+          <div class="prompt-share-label">Share prompt publicly</div>
+          <div class="prompt-share-sub">COMMUNITY CAN SEE & COPY YOUR PROMPT</div>
+        </div>
+        <div class="toggle" id="promptToggle"></div>
+      </div>
+      <button class="publish-btn" onclick="publishPost()">Publish to UNREAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const USERS = [
+  { handle:'@void.renders',  name:'Void Renders',   emoji:'🌑', tool:'Midjourney',  followers:'12.4k' },
+  { handle:'@nusantara.ai',  name:'Nusantara AI',   emoji:'🌿', tool:'Flux',        followers:'8.1k'  },
+  { handle:'@glitch.epoch',  name:'Glitch Epoch',   emoji:'⚡', tool:'Stable Diff', followers:'21k'   },
+  { handle:'@archi.dreams',  name:'Archi Dreams',   emoji:'🏛', tool:'DALL·E 3',    followers:'5.3k'  },
+  { handle:'@dreamcore.exe', name:'Dreamcore.exe',  emoji:'💭', tool:'Midjourney',  followers:'9.7k'  },
+  { handle:'@fractal.noir',  name:'Fractal Noir',   emoji:'🕷', tool:'Flux',        followers:'3.2k'  },
+  { handle:'@sabil.renders', name:'Sabil',          emoji:'🔮', tool:'Firefly',     followers:'6.8k'  },
+];
+
+const SEED_POSTS = [
+  {
+    id:1, user: USERS[0],
+    caption: 'The machine dreamt of a city that was never built.',
+    tag: 'Brutalist AI',
+    prompt: 'brutalist megastructure interior, flooded atrium, overgrown concrete, god rays from above, cinematic, 8k, photorealistic, volumetric fog, desaturated palette',
+    promptShared: true,
+    emoji: '🌑', bg: 'p1',
+    reactions: { render: 841, dream: 312, glitch: 77 },
+    comments: 43, time: '2h ago', liked: false, saved: false
+  },
+  {
+    id:2, user: USERS[1],
+    caption: 'Wayang kulit. But the dalang is gone.',
+    tag: 'Nusantara AI',
+    prompt: null,
+    promptShared: false,
+    emoji: '🌿', bg: 'p2',
+    reactions: { render: 1203, dream: 580, glitch: 44 },
+    comments: 91, time: '4h ago', liked: true, saved: true
+  },
+  {
+    id:3, user: USERS[2],
+    caption: 'I kept running the same seed until something broke. This is what broke.',
+    tag: 'Glitch Realism',
+    prompt: 'portrait, glitch artifact, data corruption, double exposure, monochrome, film grain, analog noise, hyper detailed, studio lighting',
+    promptShared: true,
+    emoji: '⚡', bg: 'p3',
+    reactions: { render: 629, dream: 201, glitch: 388 },
+    comments: 67, time: '7h ago', liked: false, saved: false
+  },
+  {
+    id:4, user: USERS[3],
+    caption: 'Never built. Should have been.',
+    tag: 'Architecture AI',
+    prompt: 'zaha hadid impossible museum, organic flowing concrete, cantilevered structure, desert landscape, golden hour light, architectural render, ultra realistic',
+    promptShared: true,
+    emoji: '🏛', bg: 'p1',
+    reactions: { render: 2104, dream: 743, glitch: 29 },
+    comments: 118, time: '11h ago', liked: false, saved: true
+  },
+  {
+    id:5, user: USERS[4],
+    caption: 'Between sleep and the screen. Every night looks like this now.',
+    tag: 'Dreamcore',
+    prompt: null,
+    promptShared: false,
+    emoji: '💭', bg: 'p2',
+    reactions: { render: 456, dream: 892, glitch: 103 },
+    comments: 55, time: '1d ago', liked: true, saved: false
+  },
+];
+
+const SUGGESTED = [
+  { name:'Dark Archi', handle:'@dark.archi', emoji:'🏚', posts:'340', tool:'Midjourney' },
+  { name:'Pixel Monk',  handle:'@pixel.monk',  emoji:'🧘', posts:'127', tool:'Flux'       },
+  { name:'Horrorgen',   handle:'@horrorgen',   emoji:'🩸', posts:'89',  tool:'SD XL'      },
+  { name:'SEA Renders', handle:'@sea.renders', emoji:'🌊', posts:'211', tool:'Firefly'    },
+];
+
+const TRENDING = [
+  { tag:'#NusantaraAI',    count:'4.2k posts' },
+  { tag:'#BrutalistAI',    count:'11.8k posts' },
+  { tag:'#HorrorRender',   count:'7.3k posts' },
+  { tag:'#GlitchRealism',  count:'3.9k posts' },
+  { tag:'#ArchitectureAI', count:'9.1k posts' },
+  { tag:'#Dreamcore',      count:'6.4k posts' },
+];
+
+const MOVEMENTS = [
+  { name:'Nusantara AI',    posts:'4.2k' },
+  { name:'Brutalist AI',    posts:'11.8k' },
+  { name:'Horror Render',   posts:'7.3k' },
+  { name:'Architecture AI', posts:'9.1k' },
+  { name:'Afrofuturism',    posts:'5.6k' },
+  { name:'Dreamcore',       posts:'6.4k' },
+];
+
+let posts = [...SEED_POSTS];
+let promptShareOn = true;
+
+// ── RENDER STORIES ────────────────────────────────────────────────────────────
+function renderStories() {
+  const bar = document.getElementById('storiesBar');
+  bar.innerHTML = USERS.map((u,i) => `
+    <div class="story-item">
+      <div class="story-ring ${i < 4 ? 'unseen' : ''}">
+        <div class="story-avatar">${u.emoji}</div>
+      </div>
+      <div class="story-name">${u.handle.replace('@','')}</div>
+    </div>
+  `).join('');
+}
+
+// ── RENDER POSTS ──────────────────────────────────────────────────────────────
+function renderPosts() {
+  document.getElementById('postsFeed').innerHTML = posts.map((p,i) => `
+    <article class="post" style="animation-delay:${i*0.06}s">
+      <div class="post-header">
+        <div class="post-user">
+          <div class="post-avatar">${p.user.emoji}</div>
+          <div>
+            <div class="post-username">${p.user.handle}</div>
+            <div class="post-model">${p.user.tool} · ${p.tag}</div>
+          </div>
+        </div>
+        <div class="post-more">···</div>
+      </div>
+
+      <div class="post-image ${p.bg}" onclick="toggleLike(${p.id})">
+        <div style="font-size:72px;opacity:.08">${p.user.emoji}</div>
+        <div class="post-image-overlay">
+          <div class="post-image-tag">${p.tag.toUpperCase()}</div>
+        </div>
+      </div>
+
+      <div class="post-actions">
+        <button class="action-btn ${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
+          <svg fill="${p.liked?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="action-btn">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="action-btn" onclick="sharePost(${p.id})">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </button>
+        <button class="action-btn action-spacer ${p.saved?'liked':''}" onclick="toggleSave(${p.id})">
+          <svg fill="${p.saved?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+
+      <div class="reaction-bar">
+        <div class="reaction ${p.reactions.render>500?'active':''}" onclick="react(${p.id},'render')">RENDER ${p.reactions.render}</div>
+        <div class="reaction ${p.reactions.dream>500?'active':''}" onclick="react(${p.id},'dream')">DREAM ${p.reactions.dream}</div>
+        <div class="reaction" onclick="react(${p.id},'glitch')">GLITCH ${p.reactions.glitch}</div>
+      </div>
+
+      <div class="post-caption"><strong>${p.user.handle}</strong> ${p.caption}</div>
+
+      ${p.promptShared && p.prompt ? `
+      <div class="prompt-reveal">
+        <div class="prompt-toggle" onclick="togglePrompt(${p.id})">
+          <div class="prompt-label">PROMPT SHARED</div>
+          <div class="prompt-arrow" id="arrow-${p.id}">▾</div>
+        </div>
+        <div class="prompt-text" id="prompt-${p.id}">
+          ${p.prompt}
+          <div class="prompt-copy" onclick="copyPrompt(${p.id})">⎘ COPY PROMPT</div>
+        </div>
+      </div>` : p.prompt === null && !p.promptShared ? `
+      <div class="prompt-reveal">
+        <div class="prompt-toggle" style="cursor:default">
+          <div class="prompt-label" style="color:var(--grey4)">PROMPT KEPT PRIVATE</div>
+        </div>
+      </div>` : ''}
+
+      <div class="post-comments">View all ${p.comments} comments</div>
+      <div class="post-time">${p.time}</div>
+      <div class="comment-input-wrap">
+        <input class="comment-input" placeholder="Add a comment..."/>
+        <button class="comment-post">POST</button>
+      </div>
+    </article>
+  `).join('');
+}
+
+// ── RENDER SIDEBAR ────────────────────────────────────────────────────────────
+function renderSidebar() {
+  document.getElementById('suggestedList').innerHTML = SUGGESTED.map(u => `
+    <div class="suggested-user">
+      <div class="sug-avatar">${u.emoji}</div>
+      <div class="sug-info">
+        <div class="sug-name">${u.name}</div>
+        <div class="sug-meta">${u.posts} posts · ${u.tool}</div>
+      </div>
+      <button class="follow-btn" onclick="this.classList.toggle('following');this.textContent=this.classList.contains('following')?'FOLLOWING':'FOLLOW'">FOLLOW</button>
+    </div>
+  `).join('');
+
+  document.getElementById('trendingList').innerHTML = TRENDING.map(t => `
+    <div class="trend-item">
+      <div class="trend-tag">${t.tag}</div>
+      <div class="trend-count">${t.count}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('movementsList').innerHTML = MOVEMENTS.map(m => `
+    <div class="movement-item">
+      <div class="movement-bar"></div>
+      <div class="movement-name">${m.name}</div>
+      <div class="movement-posts">${m.posts}</div>
+    </div>
+  `).join('');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function toggleLike(id) {
+  const p = posts.find(x=>x.id===id);
+  if (!p) return;
+  p.liked = !p.liked;
+  renderPosts();
+}
+function toggleSave(id) {
+  const p = posts.find(x=>x.id===id);
+  if (!p) return;
+  p.saved = !p.saved;
+  showToast(p.saved ? 'SAVED' : 'REMOVED FROM SAVED');
+  renderPosts();
+}
+function react(id, type) {
+  const p = posts.find(x=>x.id===id);
+  if (!p) return;
+  p.reactions[type]++;
+  renderPosts();
+}
+function togglePrompt(id) {
+  const el = document.getElementById(`prompt-${id}`);
+  const arrow = document.getElementById(`arrow-${id}`);
+  el.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+function copyPrompt(id) {
+  const p = posts.find(x=>x.id===id);
+  if (!p || !p.prompt) return;
+  navigator.clipboard.writeText(p.prompt).then(()=>showToast('PROMPT COPIED'));
+}
+function sharePost(id) {
+  showToast('LINK COPIED — SHARE UNREAL');
+}
+function setTab(el) {
+  document.querySelectorAll('.feed-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── UPLOAD MODAL ──────────────────────────────────────────────────────────────
+function openUpload() { document.getElementById('uploadModal').classList.add('open'); }
+function closeUpload() { document.getElementById('uploadModal').classList.remove('open'); }
+
+function handleUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('uploadPreviewImg');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('uploadDrop').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function togglePromptShare() {
+  promptShareOn = !promptShareOn;
+  document.getElementById('promptToggle').classList.toggle('on', promptShareOn);
+}
+
+function publishPost() {
+  const caption = document.getElementById('postCaption').value.trim();
+  const tool    = document.getElementById('postTool').value;
+  const tag     = document.getElementById('postTag').value.trim() || 'Untagged';
+  const prompt  = document.getElementById('postPrompt').value.trim();
+
+  if (!caption) { showToast('ADD A CAPTION FIRST'); return; }
+
+  const newPost = {
+    id: Date.now(),
+    user: { handle:'@you', name:'You', emoji:'◻', tool: tool||'Unknown' },
+    caption,
+    tag,
+    prompt: promptShareOn && prompt ? prompt : null,
+    promptShared: promptShareOn && !!prompt,
+    emoji: '◻', bg: ['p1','p2','p3'][Math.floor(Math.random()*3)],
+    reactions: { render:0, dream:0, glitch:0 },
+    comments: 0, time: 'just now', liked: false, saved: false
+  };
+
+  posts.unshift(newPost);
+  renderPosts();
+  closeUpload();
+  showToast('PUBLISHED TO UNREAL ◻');
+
+  // reset
+  document.getElementById('postCaption').value = '';
+  document.getElementById('postTool').value = '';
+  document.getElementById('postTag').value = '';
+  document.getElementById('postPrompt').value = '';
+  document.getElementById('uploadPreviewImg').style.display = 'none';
+  document.getElementById('uploadDrop').style.display = 'block';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderStories();
+renderPosts();
+renderSidebar();
+document.getElementById('promptToggle').classList.add('on');
+</script>
+</body>
+</html>
