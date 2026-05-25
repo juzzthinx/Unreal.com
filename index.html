@@ -1,1294 +1,914 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>UNREAL</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
 <style>
-:root {
-  --black: #080808;
-  --white: #f5f5f5;
-  --grey1: #111111;
-  --grey2: #1c1c1c;
-  --grey3: #2a2a2a;
-  --grey4: #444444;
-  --grey5: #888888;
-  --grey6: #bbbbbb;
-  --border: #1f1f1f;
-  --radius: 2px;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --blue-deep:   #0057FF;
+    --blue-mid:    #2979FF;
+    --blue-light:  #E8F0FF;
+    --blue-pale:   #F4F7FF;
+    --white:       #FFFFFF;
+    --grey-100:    #F7F8FA;
+    --grey-200:    #EAECF0;
+    --grey-400:    #9AA3B0;
+    --grey-700:    #3D4450;
+    --black:       #0D0F14;
+    --radius-sm:   8px;
+    --radius-md:   14px;
+    --radius-lg:   20px;
+    --sidebar-w:   240px;
+    --right-w:     300px;
+  }
 
-html { scroll-behavior: smooth; }
+  html { font-family: 'DM Sans', sans-serif; font-size: 15px; background: var(--grey-100); color: var(--black); scroll-behavior: smooth; }
 
-body {
-  background: var(--black);
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 300;
-  min-height: 100vh;
-  cursor: default;
-}
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--grey-200); border-radius: 4px; }
 
-/* GRAIN OVERLAY */
-body::after {
-  content:'';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.6;
-}
+  /* ── LAYOUT ── */
+  .app { display: flex; min-height: 100vh; }
 
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 52px;
-  background: var(--black);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
-}
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--white);
+    border-right: 1px solid var(--grey-200);
+    position: fixed; top: 0; left: 0; height: 100vh;
+    display: flex; flex-direction: column;
+    padding: 0 0 24px;
+    overflow-y: auto;
+    z-index: 100;
+  }
 
-.nav-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 6px;
-  color: var(--white);
-  line-height: 1;
-  user-select: none;
-}
-.nav-logo span { color: var(--grey5); }
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--grey-200);
+    margin-bottom: 8px;
+  }
+  .sidebar-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--blue-deep);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo sup {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--grey-400);
+    vertical-align: super;
+    margin-left: 2px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
 
-.nav-icons {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.nav-icon {
-  width: 22px; height: 22px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--grey5);
-  cursor: pointer;
-  transition: color .2s;
-  font-size: 16px;
-}
-.nav-icon:hover { color: var(--white); }
-.nav-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--grey3);
-  border: 1px solid var(--grey4);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  color: var(--grey5);
-  transition: border-color .2s;
-}
-.nav-avatar:hover { border-color: var(--white); }
+  .sidebar-section { padding: 12px 12px 4px; }
+  .sidebar-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--grey-400);
+    padding: 0 8px; margin-bottom: 6px;
+  }
 
-/* ── LAYOUT ── */
-.layout {
-  display: grid;
-  grid-template-columns: 240px 1fr 300px;
-  min-height: 100vh;
-  padding-top: 52px;
-}
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all .15s;
+    font-weight: 500; font-size: 14px; color: var(--grey-700);
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--blue-light); color: var(--blue-deep); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue-deep); font-weight: 600; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-/* ── LEFT SIDEBAR ── */
-.sidebar-left {
-  position: fixed;
-  top: 52px;
-  left: 0;
-  width: 240px;
-  height: calc(100vh - 52px);
-  border-right: 1px solid var(--border);
-  padding: 28px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-}
+  .movement-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
 
-.sidebar-section-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--grey4);
-  text-transform: uppercase;
-  padding: 16px 10px 6px;
-}
+  .sidebar-post-btn {
+    margin: 16px 12px 0;
+    background: var(--blue-deep);
+    color: var(--white);
+    border: none; border-radius: var(--radius-md);
+    padding: 12px 0; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sidebar-post-btn:hover { background: #0047d0; }
 
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 10px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  color: var(--grey5);
-  font-size: 13px;
-  font-weight: 400;
-  transition: all .15s;
-  border: 1px solid transparent;
-}
-.sidebar-item:hover { color: var(--white); background: var(--grey2); }
-.sidebar-item.active { color: var(--white); background: var(--grey2); border-color: var(--border); }
-.sidebar-item svg { width:16px; height:16px; flex-shrink:0; }
+  /* ── TOPBAR ── */
+  .topbar {
+    position: fixed; top: 0;
+    left: var(--sidebar-w); right: var(--right-w);
+    height: 60px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--grey-200);
+    display: flex; align-items: center;
+    padding: 0 24px; gap: 16px;
+    z-index: 90;
+  }
 
-.sidebar-tag {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
-  cursor: pointer;
-  color: var(--grey5);
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 1px;
-  transition: color .15s;
-  border-radius: var(--radius);
-}
-.sidebar-tag:hover { color: var(--white); }
-.tag-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--grey4);
-  flex-shrink: 0;
-}
+  .search-bar {
+    flex: 1; max-width: 420px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--grey-100); border: 1.5px solid var(--grey-200);
+    border-radius: 40px; padding: 0 16px; height: 38px;
+    transition: border-color .15s;
+  }
+  .search-bar:focus-within { border-color: var(--blue-mid); background: var(--white); }
+  .search-bar svg { color: var(--grey-400); width: 16px; height: 16px; flex-shrink: 0; }
+  .search-bar input {
+    border: none; background: transparent; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black);
+    flex: 1;
+  }
+  .search-bar input::placeholder { color: var(--grey-400); }
 
-.upload-btn {
-  margin-top: auto;
-  padding: 11px;
-  background: var(--white);
-  color: var(--black);
-  border: none;
-  border-radius: var(--radius);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all .2s;
-  text-align: center;
-}
-.upload-btn:hover { background: var(--grey6); }
+  .topbar-tabs { display: flex; gap: 4px; margin-left: auto; }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 40px; border: none;
+    background: transparent; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 500; color: var(--grey-700);
+    transition: all .15s;
+  }
+  .tab-btn.active { background: var(--blue-deep); color: var(--white); font-weight: 600; }
+  .tab-btn:hover:not(.active) { background: var(--blue-light); color: var(--blue-deep); }
 
-/* ── MAIN FEED ── */
-.feed {
-  grid-column: 2;
-  margin-left: 240px;
-  margin-right: 300px;
-  padding: 0;
-  min-height: 100vh;
-}
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue-deep), #7B2FF7);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white; cursor: pointer;
+    flex-shrink: 0;
+  }
 
-/* STORIES BAR */
-.stories-bar {
-  display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.stories-bar::-webkit-scrollbar { display: none; }
+  /* ── MAIN FEED ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    margin-right: var(--right-w);
+    padding-top: 80px; padding-bottom: 40px;
+    min-height: 100vh;
+  }
 
-.story-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.story-ring {
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  border: 1px solid var(--grey3);
-  padding: 2px;
-  transition: border-color .2s;
-}
-.story-ring.unseen { border-color: var(--white); }
-.story-ring:hover { border-color: var(--grey5); }
-.story-avatar {
-  width: 100%; height: 100%;
-  border-radius: 50%;
-  background: var(--grey2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  overflow: hidden;
-}
-.story-name {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey5);
-  letter-spacing: 0.5px;
-  max-width: 56px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .feed-header {
+    padding: 16px 24px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .feed-title { font-family: 'Syne', sans-serif; font-size: 18px; color: var(--black); }
 
-/* FEED TABS */
-.feed-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-}
-.feed-tab {
-  flex: 1;
-  padding: 12px;
-  text-align: center;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--grey4);
-  cursor: pointer;
-  border-bottom: 1px solid transparent;
-  margin-bottom: -1px;
-  transition: all .2s;
-}
-.feed-tab:hover { color: var(--grey6); }
-.feed-tab.active { color: var(--white); border-bottom-color: var(--white); }
+  .filter-row {
+    display: flex; gap: 8px;
+    padding: 14px 24px 16px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 6px 14px; border-radius: 40px;
+    border: 1.5px solid var(--grey-200);
+    background: var(--white); font-size: 12px; font-weight: 500;
+    color: var(--grey-700); cursor: pointer; white-space: nowrap;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .filter-chip.active { border-color: var(--blue-deep); background: var(--blue-deep); color: var(--white); }
+  .filter-chip:hover:not(.active) { border-color: var(--blue-mid); color: var(--blue-deep); }
 
-/* POST CARD */
-.post {
-  border-bottom: 1px solid var(--border);
-  animation: fadeUp .4s ease both;
-}
-@keyframes fadeUp {
-  from { opacity:0; transform: translateY(12px); }
-  to   { opacity:1; transform: none; }
-}
-.post-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-}
-.post-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-.post-avatar {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: var(--grey2);
-  border: 1px solid var(--grey3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.post-username {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--white);
-}
-.post-model {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey5);
-  letter-spacing: 1px;
-}
-.post-more {
-  color: var(--grey4);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  padding: 4px;
-  transition: color .2s;
-}
-.post-more:hover { color: var(--white); }
+  /* ── MASONRY GRID ── */
+  .masonry {
+    column-count: 3;
+    column-gap: 14px;
+    padding: 0 24px;
+  }
 
-/* IMAGE GRID — Instagram square */
-.post-image {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: var(--grey2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 64px;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-}
-.post-image img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: grayscale(15%);
-  transition: filter .3s, transform .3s;
-}
-.post-image:hover img { filter: grayscale(0%); transform: scale(1.01); }
+  .art-card {
+    break-inside: avoid;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 14px;
+    border: 1px solid var(--grey-200);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+  }
+  .art-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,87,255,.10); }
 
-/* image placeholder gradients — styled AI art feel */
-.post-image.p1 { background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 40%, #0a0a0a 100%); }
-.post-image.p2 { background: linear-gradient(160deg, #111 0%, #222 50%, #0d0d0d 100%); }
-.post-image.p3 { background: linear-gradient(120deg, #080808 0%, #181818 60%, #0c0c0c 100%); }
+  .art-card img {
+    width: 100%; display: block;
+    object-fit: cover;
+    background: var(--grey-200);
+  }
 
-.post-image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, #00000088 0%, transparent 50%);
-  opacity: 0;
-  transition: opacity .3s;
-  display: flex;
-  align-items: flex-end;
-  padding: 16px;
-}
-.post-image:hover .post-image-overlay { opacity: 1; }
-.post-image-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #ffffffaa;
-  background: #00000066;
-  padding: 3px 8px;
-  border-radius: 2px;
-  backdrop-filter: blur(4px);
-}
+  .art-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.55) 100%);
+    opacity: 0; transition: opacity .2s;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 12px;
+  }
+  .art-card:hover .art-card-overlay { opacity: 1; }
 
-/* ACTIONS */
-.post-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 16px 6px;
-}
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--grey5);
-  cursor: pointer;
-  font-size: 13px;
-  transition: color .15s;
-  background: none;
-  border: none;
-  font-family: 'DM Sans', sans-serif;
-}
-.action-btn:hover { color: var(--white); }
-.action-btn svg { width:20px; height:20px; }
-.action-btn.liked { color: var(--white); }
-.action-count {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  color: var(--grey5);
-}
-.action-spacer { margin-left: auto; }
+  .overlay-actions {
+    display: flex; gap: 10px; align-items: center;
+  }
+  .overlay-btn {
+    background: rgba(255,255,255,.18); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 40px; padding: 5px 12px;
+    color: white; font-size: 12px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: background .15s;
+  }
+  .overlay-btn:hover { background: rgba(255,255,255,.32); }
+  .overlay-btn svg { width: 13px; height: 13px; }
 
-/* REACTIONS */
-.reaction-bar {
-  display: flex;
-  gap: 6px;
-  padding: 0 16px 8px;
-}
-.reaction {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1px;
-  padding: 3px 8px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  color: var(--grey5);
-  cursor: pointer;
-  transition: all .2s;
-}
-.reaction:hover, .reaction.active { border-color: var(--white); color: var(--white); }
+  .art-card-body { padding: 10px 12px 12px; }
+  .art-card-caption {
+    font-size: 13px; font-weight: 500; color: var(--black);
+    margin-bottom: 6px; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .art-card-meta {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .art-card-user {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .user-mini-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    object-fit: cover; border: 1.5px solid var(--blue-light);
+  }
+  .user-mini-name { font-size: 12px; color: var(--grey-400); font-weight: 500; }
 
-/* CAPTION */
-.post-caption {
-  padding: 0 16px 6px;
-  font-size: 12px;
-  color: var(--grey6);
-  line-height: 1.6;
-}
-.post-caption strong { color: var(--white); font-weight: 500; }
+  .art-tool-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: .5px;
+    background: var(--blue-light); color: var(--blue-deep);
+    border-radius: 4px; padding: 2px 7px;
+    text-transform: uppercase;
+  }
 
-/* PROMPT REVEAL */
-.prompt-reveal {
-  margin: 0 16px 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.prompt-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  cursor: pointer;
-  background: var(--grey1);
-  transition: background .2s;
-}
-.prompt-toggle:hover { background: var(--grey2); }
-.prompt-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--grey5);
-}
-.prompt-arrow { color: var(--grey4); font-size: 10px; transition: transform .2s; }
-.prompt-arrow.open { transform: rotate(180deg); }
-.prompt-text {
-  display: none;
-  padding: 10px 12px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  color: var(--grey6);
-  line-height: 1.7;
-  background: var(--grey1);
-  border-top: 1px solid var(--border);
-}
-.prompt-text.open { display: block; }
-.prompt-copy {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: var(--grey4);
-  cursor: pointer;
-  transition: color .2s;
-  text-transform: uppercase;
-}
-.prompt-copy:hover { color: var(--white); }
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    width: var(--right-w);
+    position: fixed; top: 0; right: 0; height: 100vh;
+    background: var(--white);
+    border-left: 1px solid var(--grey-200);
+    padding: 24px 20px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 24px;
+  }
 
-/* COMMENTS */
-.post-comments {
-  padding: 0 16px 6px;
-  font-size: 11px;
-  color: var(--grey5);
-  cursor: pointer;
-}
-.post-comments:hover { color: var(--grey6); }
-.post-time {
-  padding: 0 16px 14px;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey4);
-  letter-spacing: 1px;
-}
+  .right-panel-brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rp-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--blue-deep); }
 
-/* COMMENT INPUT */
-.comment-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px 14px;
-  border-top: 1px solid var(--border);
-}
-.comment-input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  color: var(--white);
-  placeholder-color: var(--grey4);
-}
-.comment-input::placeholder { color: var(--grey4); }
-.comment-post {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--grey5);
-  cursor: pointer;
-  background: none;
-  border: none;
-  transition: color .2s;
-}
-.comment-post:hover { color: var(--white); }
+  .widget-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--grey-400);
+    margin-bottom: 12px;
+  }
 
-/* ── RIGHT SIDEBAR ── */
-.sidebar-right {
-  position: fixed;
-  top: 52px;
-  right: 0;
-  width: 300px;
-  height: calc(100vh - 52px);
-  border-left: 1px solid var(--border);
-  padding: 24px 20px;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.sidebar-right::-webkit-scrollbar { display: none; }
+  .trending-tag {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--grey-200);
+  }
+  .trending-tag:last-child { border-bottom: none; }
+  .tag-name { font-size: 13px; font-weight: 600; color: var(--black); }
+  .tag-count { font-size: 12px; color: var(--grey-400); }
 
-.right-section { margin-bottom: 28px; }
-.right-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--grey4);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
+  .suggested-user {
+    display: flex; align-items: center; gap: 10px; padding: 6px 0;
+  }
+  .su-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    object-fit: cover; border: 2px solid var(--blue-light);
+    flex-shrink: 0;
+  }
+  .su-info { flex: 1; min-width: 0; }
+  .su-name { font-size: 13px; font-weight: 600; color: var(--black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .su-handle { font-size: 12px; color: var(--grey-400); }
+  .follow-btn {
+    font-size: 12px; font-weight: 600;
+    color: var(--blue-deep); background: var(--blue-light);
+    border: none; border-radius: 40px; padding: 5px 12px;
+    cursor: pointer; transition: all .15s; flex-shrink: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .follow-btn:hover { background: var(--blue-deep); color: white; }
 
-/* SUGGESTED */
-.suggested-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 0;
-  cursor: pointer;
-}
-.sug-avatar {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: var(--grey2);
-  border: 1px solid var(--grey3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.sug-info { flex: 1; min-width: 0; }
-.sug-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sug-meta {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey5);
-  letter-spacing: 0.5px;
-}
-.follow-btn {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: var(--grey5);
-  background: none;
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-  cursor: pointer;
-  border-radius: var(--radius);
-  transition: all .2s;
-  white-space: nowrap;
-}
-.follow-btn:hover, .follow-btn.following { border-color: var(--white); color: var(--white); }
+  .movement-card {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative; cursor: pointer;
+    transition: transform .15s;
+  }
+  .movement-card:hover { transform: scale(1.02); }
+  .movement-card img { width: 100%; height: 72px; object-fit: cover; display: block; }
+  .movement-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,87,255,.75), rgba(0,87,255,.25));
+    display: flex; align-items: center; padding: 0 12px;
+  }
+  .movement-card-name { font-size: 13px; font-weight: 700; color: white; }
 
-/* TRENDING TAGS */
-.trend-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 0;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-}
-.trend-item:last-child { border-bottom: none; }
-.trend-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--grey6);
-  transition: color .2s;
-}
-.trend-item:hover .trend-tag { color: var(--white); }
-.trend-count {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey4);
-}
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
 
-/* MOVEMENTS */
-.movement-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 0;
-  cursor: pointer;
-}
-.movement-bar {
-  width: 28px; height: 4px;
-  background: var(--grey3);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.movement-name {
-  font-size: 12px;
-  color: var(--grey6);
-  flex: 1;
-  transition: color .2s;
-}
-.movement-item:hover .movement-name { color: var(--white); }
-.movement-posts {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--grey4);
-}
+  .modal {
+    background: var(--white); border-radius: var(--radius-lg);
+    width: 480px; max-width: 94vw;
+    padding: 28px; position: relative;
+    transform: translateY(16px); transition: transform .2s;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
 
-/* MODAL — Upload */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #000000cc;
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--grey1);
-  border: 1px solid var(--grey3);
-  border-radius: var(--radius);
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: modalIn .25s ease;
-}
-@keyframes modalIn { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:none; } }
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.modal-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  letter-spacing: 4px;
-  color: var(--white);
-}
-.modal-close {
-  background: none; border: none;
-  color: var(--grey5); cursor: pointer;
-  font-size: 20px; line-height: 1;
-  transition: color .2s;
-}
-.modal-close:hover { color: var(--white); }
-.modal-body { padding: 24px 20px; }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; color: var(--black); }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; background: var(--grey-100);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--grey-700); font-size: 18px;
+    transition: background .15s;
+  }
+  .modal-close:hover { background: var(--grey-200); }
 
-.upload-drop {
-  border: 1px dashed var(--grey3);
-  border-radius: var(--radius);
-  padding: 40px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all .2s;
-  position: relative;
-  margin-bottom: 20px;
-}
-.upload-drop:hover { border-color: var(--grey5); background: var(--grey2); }
-.upload-drop input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
-.upload-icon-big { font-size: 36px; margin-bottom: 10px; }
-.upload-drop-text { font-size: 13px; color: var(--grey5); }
-.upload-drop-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey4); letter-spacing: 1.5px; margin-top: 6px; }
-.upload-preview-img { max-width:100%; border-radius:var(--radius); display:none; margin-bottom:16px; }
+  .upload-zone {
+    border: 2px dashed var(--grey-200); border-radius: var(--radius-md);
+    padding: 36px 20px; text-align: center; cursor: pointer;
+    transition: border-color .15s; margin-bottom: 16px;
+    background: var(--grey-100);
+  }
+  .upload-zone:hover { border-color: var(--blue-mid); background: var(--blue-pale); }
+  .upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-text { font-size: 14px; color: var(--grey-700); font-weight: 500; }
+  .upload-sub { font-size: 12px; color: var(--grey-400); margin-top: 4px; }
 
-.form-row { margin-bottom: 16px; }
-.form-label {
-  display: block;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--grey4);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.form-input, .form-select, .form-textarea {
-  width: 100%;
-  background: var(--grey2);
-  border: 1px solid var(--grey3);
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  outline: none;
-  transition: border-color .2s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--grey5); }
-.form-textarea { resize: vertical; min-height: 70px; font-size: 12px; }
-.form-select option { background: var(--grey2); }
+  .form-field { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--grey-700); margin-bottom: 6px; display: block; letter-spacing: .3px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; border: 1.5px solid var(--grey-200);
+    border-radius: var(--radius-sm); padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--black); background: var(--white);
+    outline: none; transition: border-color .15s;
+    appearance: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--blue-mid); }
+  .form-textarea { resize: vertical; min-height: 72px; }
 
-/* prompt toggle in modal */
-.prompt-share-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: var(--grey2);
-  border: 1px solid var(--grey3);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
-  cursor: pointer;
-}
-.prompt-share-label { font-size: 12px; color: var(--grey6); }
-.prompt-share-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey4); letter-spacing: 1px; }
-.toggle {
-  width: 36px; height: 20px;
-  background: var(--grey3);
-  border-radius: 10px;
-  position: relative;
-  transition: background .2s;
-  flex-shrink: 0;
-}
-.toggle.on { background: var(--white); }
-.toggle::after {
-  content:'';
-  position:absolute;
-  top:3px; left:3px;
-  width:14px; height:14px;
-  border-radius:50%;
-  background: var(--grey5);
-  transition: all .2s;
-}
-.toggle.on::after { left:19px; background: var(--black); }
+  .prompt-toggle {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--grey-100);
+    border-radius: var(--radius-sm); margin-bottom: 16px; cursor: pointer;
+  }
+  .toggle-switch {
+    width: 36px; height: 20px; background: var(--grey-200);
+    border-radius: 10px; position: relative; transition: background .15s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--blue-deep); }
+  .toggle-switch::after {
+    content: ''; width: 14px; height: 14px; background: white;
+    border-radius: 50%; position: absolute; top: 3px; left: 3px;
+    transition: left .15s;
+  }
+  .toggle-switch.on::after { left: 19px; }
+  .toggle-label { font-size: 12px; color: var(--grey-700); font-weight: 500; }
 
-.publish-btn {
-  width: 100%;
-  padding: 13px;
-  background: var(--white);
-  color: var(--black);
-  border: none;
-  border-radius: var(--radius);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all .2s;
-}
-.publish-btn:hover { background: var(--grey6); }
+  .publish-btn {
+    width: 100%; background: var(--blue-deep); color: white;
+    border: none; border-radius: var(--radius-md); padding: 13px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .publish-btn:hover { background: #0047d0; }
 
-/* TOAST */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--white);
-  color: var(--black);
-  padding: 10px 20px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
-  border-radius: var(--radius);
-  z-index: 9998;
-  opacity: 0;
-  transition: all .3s;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: all; }
+  .lightbox img { max-height: 85vh; max-width: 85vw; border-radius: var(--radius-md); object-fit: contain; }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.15); border: none; color: white;
+    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
 
-/* MOBILE */
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  .sidebar-left { display: none; }
-  .sidebar-right { display: none; }
-  .feed { margin: 0; }
-}
+  /* ── FOOTER LINKS ── */
+  .sidebar-footer { margin-top: auto; padding: 16px 20px 0; font-size: 11px; color: var(--grey-400); line-height: 1.8; }
+  .sidebar-footer a { color: var(--grey-400); text-decoration: none; }
+  .sidebar-footer a:hover { color: var(--blue-mid); }
+
+  @media (max-width: 1100px) {
+    :root { --right-w: 0px; }
+    .right-panel { display: none; }
+    .topbar { right: 0; }
+    .masonry { column-count: 2; }
+  }
+  @media (max-width: 700px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { display: none; }
+    .topbar { left: 0; }
+    .masonry { column-count: 2; padding: 0 12px; }
+    .filter-row { padding: 10px 12px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">UNREAL<span>.</span></div>
-  <div class="nav-icons">
-    <!-- search -->
-    <div class="nav-icon" title="Search">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
-    </div>
-    <!-- explore -->
-    <div class="nav-icon" title="Explore">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/></svg>
-    </div>
-    <!-- upload -->
-    <div class="nav-icon" title="Post" onclick="openUpload()">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
-    </div>
-    <!-- notifications -->
-    <div class="nav-icon" title="Notifications">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </div>
-    <div class="nav-avatar" title="Profile">NZ</div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span>UNREAL</span><sup>BETA</sup>
   </div>
-</nav>
 
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar-left">
-    <div class="sidebar-item active">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Discover</div>
+    <a class="nav-item active" onclick="setTab(this,'for-you')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Feed
-    </div>
-    <div class="sidebar-item">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </a>
+    <a class="nav-item" onclick="setTab(this,'explore')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Explore
-    </div>
-    <div class="sidebar-item">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </a>
+    <a class="nav-item" onclick="setTab(this,'featured')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Featured
-    </div>
-    <div class="sidebar-item">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </a>
+    <a class="nav-item" onclick="setTab(this,'following')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Following
-    </div>
-    <div class="sidebar-item">
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       Saved
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Movements</div>
+    <a class="nav-item" onclick="filterByMovement('Nusantara AI')"><span class="movement-dot" style="background:#2979FF"></span>Nusantara AI</a>
+    <a class="nav-item" onclick="filterByMovement('Brutalist AI')"><span class="movement-dot" style="background:#0D0F14"></span>Brutalist AI</a>
+    <a class="nav-item" onclick="filterByMovement('Horror Render')"><span class="movement-dot" style="background:#C0392B"></span>Horror Render</a>
+    <a class="nav-item" onclick="filterByMovement('Architecture AI')"><span class="movement-dot" style="background:#8E44AD"></span>Architecture AI</a>
+    <a class="nav-item" onclick="filterByMovement('Afrofuturism')"><span class="movement-dot" style="background:#F39C12"></span>Afrofuturism</a>
+    <a class="nav-item" onclick="filterByMovement('Dreamcore')"><span class="movement-dot" style="background:#1ABC9C"></span>Dreamcore</a>
+    <a class="nav-item" onclick="filterByMovement('Glitch Realism')"><span class="movement-dot" style="background:#E91E63"></span>Glitch Realism</a>
+    <a class="nav-item" onclick="filterByMovement('Cyber Baroque')"><span class="movement-dot" style="background:#FF6F00"></span>Cyber Baroque</a>
+    <a class="nav-item" onclick="filterByMovement('Bio Surreal')"><span class="movement-dot" style="background:#00897B"></span>Bio Surreal</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Tools</div>
+    <a class="nav-item"><span style="font-size:13px">🎨</span> Midjourney</a>
+    <a class="nav-item"><span style="font-size:13px">⚡</span> Flux</a>
+    <a class="nav-item"><span style="font-size:13px">🤖</span> DALL·E</a>
+    <a class="nav-item"><span style="font-size:13px">🔥</span> Firefly</a>
+    <a class="nav-item"><span style="font-size:13px">🌀</span> Stable Diffusion</a>
+  </div>
+
+  <button class="sidebar-post-btn" onclick="openModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    New Post
+  </button>
+
+  <div class="sidebar-footer">
+    <a href="#">About</a> · <a href="#">Terms</a> · <a href="#">Privacy</a><br/>
+    © 2026 UNREAL
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" placeholder="Search art, prompts, movements…" id="searchInput" oninput="handleSearch()" />
+  </div>
+  <div class="topbar-tabs">
+    <button class="tab-btn active" onclick="switchFeedTab(this,'for-you')">For You</button>
+    <button class="tab-btn" onclick="switchFeedTab(this,'following')">Following</button>
+    <button class="tab-btn" onclick="switchFeedTab(this,'movements')">Movements</button>
+    <button class="tab-btn" onclick="switchFeedTab(this,'featured')">Featured</button>
+  </div>
+  <div class="avatar">NZ</div>
+</header>
+
+<!-- MAIN FEED -->
+<main class="main">
+  <div class="filter-row" id="filterRow">
+    <div class="filter-chip active" onclick="filterChip(this,'all')">All</div>
+    <div class="filter-chip" onclick="filterChip(this,'Nusantara AI')">Nusantara AI</div>
+    <div class="filter-chip" onclick="filterChip(this,'Brutalist AI')">Brutalist AI</div>
+    <div class="filter-chip" onclick="filterChip(this,'Horror Render')">Horror Render</div>
+    <div class="filter-chip" onclick="filterChip(this,'Architecture AI')">Architecture AI</div>
+    <div class="filter-chip" onclick="filterChip(this,'Afrofuturism')">Afrofuturism</div>
+    <div class="filter-chip" onclick="filterChip(this,'Dreamcore')">Dreamcore</div>
+    <div class="filter-chip" onclick="filterChip(this,'Glitch Realism')">Glitch Realism</div>
+    <div class="filter-chip" onclick="filterChip(this,'Cyber Baroque')">Cyber Baroque</div>
+    <div class="filter-chip" onclick="filterChip(this,'Bio Surreal')">Bio Surreal</div>
+  </div>
+
+  <div class="masonry" id="masonry"></div>
+</main>
+
+<!-- RIGHT PANEL -->
+<aside class="right-panel">
+  <div>
+    <div class="widget-title">Trending Tags</div>
+    <div class="trending-tag"><span class="tag-name">#NusantaraAI</span><span class="tag-count">2.4k posts</span></div>
+    <div class="trending-tag"><span class="tag-name">#MidjourneyV7</span><span class="tag-count">1.8k posts</span></div>
+    <div class="trending-tag"><span class="tag-name">#HorrorRender</span><span class="tag-count">1.2k posts</span></div>
+    <div class="trending-tag"><span class="tag-name">#DreamcoreAI</span><span class="tag-count">980 posts</span></div>
+    <div class="trending-tag"><span class="tag-name">#GlitchArt</span><span class="tag-count">754 posts</span></div>
+    <div class="trending-tag"><span class="tag-name">#AIArchitecture</span><span class="tag-count">621 posts</span></div>
+  </div>
+
+  <div>
+    <div class="widget-title">Movements</div>
+    <div class="movement-card" onclick="filterByMovement('Nusantara AI')">
+      <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=280&q=80" alt="Nusantara AI" />
+      <div class="movement-card-overlay"><span class="movement-card-name">Nusantara AI</span></div>
     </div>
-
-    <div class="sidebar-section-label">Movements</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#fff"></div> Nusantara AI</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#888"></div> Brutalist AI</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#555"></div> Horror Render</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#777"></div> Architecture AI</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#aaa"></div> Afrofuturism</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#666"></div> Dreamcore</div>
-    <div class="sidebar-tag"><div class="tag-dot" style="background:#444"></div> Glitch Realism</div>
-
-    <div class="sidebar-section-label">Tools</div>
-    <div class="sidebar-tag"><div class="tag-dot"></div> Midjourney</div>
-    <div class="sidebar-tag"><div class="tag-dot"></div> Flux</div>
-    <div class="sidebar-tag"><div class="tag-dot"></div> DALL·E</div>
-    <div class="sidebar-tag"><div class="tag-dot"></div> Firefly</div>
-    <div class="sidebar-tag"><div class="tag-dot"></div> Stable Diffusion</div>
-
-    <button class="upload-btn" onclick="openUpload()">+ Post</button>
-  </aside>
-
-  <!-- FEED -->
-  <main class="feed">
-
-    <!-- STORIES -->
-    <div class="stories-bar" id="storiesBar"></div>
-
-    <!-- TABS -->
-    <div class="feed-tabs">
-      <div class="feed-tab active" onclick="setTab(this)">FOR YOU</div>
-      <div class="feed-tab" onclick="setTab(this)">FOLLOWING</div>
-      <div class="feed-tab" onclick="setTab(this)">MOVEMENTS</div>
-      <div class="feed-tab" onclick="setTab(this)">FEATURED</div>
+    <div class="movement-card" onclick="filterByMovement('Horror Render')">
+      <img src="https://images.unsplash.com/photo-1539604735-f3b2b9a0d7e6?w=280&q=80" alt="Horror Render" />
+      <div class="movement-card-overlay"><span class="movement-card-name">Horror Render</span></div>
     </div>
-
-    <!-- POSTS -->
-    <div id="postsFeed"></div>
-
-  </main>
-
-  <!-- RIGHT SIDEBAR -->
-  <aside class="sidebar-right">
-
-    <div class="right-section">
-      <div class="right-label">Suggested</div>
-      <div id="suggestedList"></div>
+    <div class="movement-card" onclick="filterByMovement('Dreamcore')">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=280&q=80" alt="Dreamcore" />
+      <div class="movement-card-overlay"><span class="movement-card-name">Dreamcore</span></div>
     </div>
+  </div>
 
-    <div class="right-section">
-      <div class="right-label">Trending Tags</div>
-      <div id="trendingList"></div>
+  <div>
+    <div class="widget-title">Suggested Creators</div>
+    <div class="suggested-user">
+      <img class="su-avatar" src="https://i.pravatar.cc/80?img=11" alt="creator" />
+      <div class="su-info"><div class="su-name">Aisha.renders</div><div class="su-handle">Afrofuturism · KL</div></div>
+      <button class="follow-btn">Follow</button>
     </div>
-
-    <div class="right-section">
-      <div class="right-label">Movements</div>
-      <div id="movementsList"></div>
+    <div class="suggested-user">
+      <img class="su-avatar" src="https://i.pravatar.cc/80?img=32" alt="creator" />
+      <div class="su-info"><div class="su-name">flux.void</div><div class="su-handle">Glitch Realism · SG</div></div>
+      <button class="follow-btn">Follow</button>
     </div>
-
-    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey4);letter-spacing:1px;line-height:2">
-      About · Terms · Privacy<br>
-      © 2026 UNREAL
+    <div class="suggested-user">
+      <img class="su-avatar" src="https://i.pravatar.cc/80?img=47" alt="creator" />
+      <div class="su-info"><div class="su-name">nusantaraink</div><div class="su-handle">Nusantara AI · JKT</div></div>
+      <button class="follow-btn">Follow</button>
     </div>
-
-  </aside>
-</div>
+    <div class="suggested-user">
+      <img class="su-avatar" src="https://i.pravatar.cc/80?img=58" alt="creator" />
+      <div class="su-info"><div class="su-name">geometria.ai</div><div class="su-handle">Architecture AI · BKK</div></div>
+      <button class="follow-btn">Follow</button>
+    </div>
+  </div>
+</aside>
 
 <!-- UPLOAD MODAL -->
-<div class="modal-overlay" id="uploadModal" onclick="if(event.target===this)closeUpload()">
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">NEW POST</div>
-      <button class="modal-close" onclick="closeUpload()">✕</button>
+      <div class="modal-title">New Post</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <img class="upload-preview-img" id="uploadPreviewImg"/>
-      <div class="upload-drop" id="uploadDrop">
-        <input type="file" accept="image/*" onchange="handleUpload(event)"/>
-        <div class="upload-icon-big">◻</div>
-        <div class="upload-drop-text">Drop your AI art here</div>
-        <div class="upload-drop-sub">JPG · PNG · WEBP · up to 20MB</div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Caption</label>
-        <textarea class="form-textarea" id="postCaption" placeholder="What's the story behind this render..."></textarea>
-      </div>
-      <div class="form-row">
-        <label class="form-label">AI Tool Used</label>
-        <select class="form-select" id="postTool">
-          <option value="">Select tool...</option>
-          <option>Midjourney</option>
-          <option>Flux</option>
-          <option>DALL·E 3</option>
-          <option>Stable Diffusion</option>
-          <option>Adobe Firefly</option>
-          <option>Runway</option>
-          <option>Ideogram</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Movement / Tag</label>
-        <input class="form-input" id="postTag" placeholder="e.g. Nusantara AI, Brutalist, Horror Render..."/>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Prompt (optional — share with community)</label>
-        <textarea class="form-textarea" id="postPrompt" placeholder="Paste your prompt here if you'd like to share it..."></textarea>
-      </div>
-      <div class="prompt-share-row" onclick="togglePromptShare()" id="promptShareRow">
-        <div>
-          <div class="prompt-share-label">Share prompt publicly</div>
-          <div class="prompt-share-sub">COMMUNITY CAN SEE & COPY YOUR PROMPT</div>
-        </div>
-        <div class="toggle" id="promptToggle"></div>
-      </div>
-      <button class="publish-btn" onclick="publishPost()">Publish to UNREAL</button>
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">🖼️</div>
+      <div class="upload-text">Drop your AI art here or click to browse</div>
+      <div class="upload-sub">JPG · PNG · WEBP · up to 20MB</div>
+      <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="previewFile(event)" />
     </div>
+    <div class="form-field">
+      <label class="form-label">Caption</label>
+      <input class="form-input" type="text" placeholder="Describe your work…" />
+    </div>
+    <div class="form-field">
+      <label class="form-label">AI Tool Used</label>
+      <select class="form-select">
+        <option value="">Select tool…</option>
+        <option>Midjourney</option>
+        <option>Flux</option>
+        <option>DALL·E 3</option>
+        <option>Stable Diffusion</option>
+        <option>Adobe Firefly</option>
+        <option>Runway</option>
+        <option>Ideogram</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Movement / Tag</label>
+      <select class="form-select">
+        <option value="">Select movement…</option>
+        <option>Nusantara AI</option>
+        <option>Brutalist AI</option>
+        <option>Horror Render</option>
+        <option>Architecture AI</option>
+        <option>Afrofuturism</option>
+        <option>Dreamcore</option>
+        <option>Glitch Realism</option>
+        <option>Cyber Baroque</option>
+        <option>Bio Surreal</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Prompt (optional)</label>
+      <textarea class="form-textarea" placeholder="Share the prompt you used…"></textarea>
+    </div>
+    <div class="prompt-toggle" onclick="togglePromptPublic(this)">
+      <div class="toggle-switch" id="promptToggle"></div>
+      <span class="toggle-label" id="toggleLabel">Keep prompt private</span>
+    </div>
+    <button class="publish-btn">Publish to UNREAL</button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="preview" />
+</div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
-
-const USERS = [
-  { handle:'@void.renders',  name:'Void Renders',   emoji:'🌑', tool:'Midjourney',  followers:'12.4k' },
-  { handle:'@nusantara.ai',  name:'Nusantara AI',   emoji:'🌿', tool:'Flux',        followers:'8.1k'  },
-  { handle:'@glitch.epoch',  name:'Glitch Epoch',   emoji:'⚡', tool:'Stable Diff', followers:'21k'   },
-  { handle:'@archi.dreams',  name:'Archi Dreams',   emoji:'🏛', tool:'DALL·E 3',    followers:'5.3k'  },
-  { handle:'@dreamcore.exe', name:'Dreamcore.exe',  emoji:'💭', tool:'Midjourney',  followers:'9.7k'  },
-  { handle:'@fractal.noir',  name:'Fractal Noir',   emoji:'🕷', tool:'Flux',        followers:'3.2k'  },
-  { handle:'@sabil.renders', name:'Sabil',          emoji:'🔮', tool:'Firefly',     followers:'6.8k'  },
-];
-
-const SEED_POSTS = [
+// ── ARTWORK DATA ──
+const arts = [
   {
-    id:1, user: USERS[0],
-    caption: 'The machine dreamt of a city that was never built.',
-    tag: 'Brutalist AI',
-    prompt: 'brutalist megastructure interior, flooded atrium, overgrown concrete, god rays from above, cinematic, 8k, photorealistic, volumetric fog, desaturated palette',
-    promptShared: true,
-    emoji: '🌑', bg: 'p1',
-    reactions: { render: 841, dream: 312, glitch: 77 },
-    comments: 43, time: '2h ago', liked: false, saved: false
+    id:1, movement:"Nusantara AI", tool:"Midjourney",
+    caption:"Ancient Majapahit cityscape reimagined through neural synthesis",
+    user:"nusantaraink", userImg:"https://i.pravatar.cc/40?img=47",
+    likes:1204, comments:88,
+    img:"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=85",
+    height:320
   },
   {
-    id:2, user: USERS[1],
-    caption: 'Wayang kulit. But the dalang is gone.',
-    tag: 'Nusantara AI',
-    prompt: null,
-    promptShared: false,
-    emoji: '🌿', bg: 'p2',
-    reactions: { render: 1203, dream: 580, glitch: 44 },
-    comments: 91, time: '4h ago', liked: true, saved: true
+    id:2, movement:"Architecture AI", tool:"Flux",
+    caption:"Brutalist cathedral — overgrown and forgotten by the modern world",
+    user:"geometria.ai", userImg:"https://i.pravatar.cc/40?img=58",
+    likes:876, comments:42,
+    img:"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=85",
+    height:420
   },
   {
-    id:3, user: USERS[2],
-    caption: 'I kept running the same seed until something broke. This is what broke.',
-    tag: 'Glitch Realism',
-    prompt: 'portrait, glitch artifact, data corruption, double exposure, monochrome, film grain, analog noise, hyper detailed, studio lighting',
-    promptShared: true,
-    emoji: '⚡', bg: 'p3',
-    reactions: { render: 629, dream: 201, glitch: 388 },
-    comments: 67, time: '7h ago', liked: false, saved: false
+    id:3, movement:"Horror Render", tool:"Stable Diffusion",
+    caption:"She stood at the edge of the marsh for three days",
+    user:"voidcrawler", userImg:"https://i.pravatar.cc/40?img=13",
+    likes:2311, comments:197,
+    img:"https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=85",
+    height:370
   },
   {
-    id:4, user: USERS[3],
-    caption: 'Never built. Should have been.',
-    tag: 'Architecture AI',
-    prompt: 'zaha hadid impossible museum, organic flowing concrete, cantilevered structure, desert landscape, golden hour light, architectural render, ultra realistic',
-    promptShared: true,
-    emoji: '🏛', bg: 'p1',
-    reactions: { render: 2104, dream: 743, glitch: 29 },
-    comments: 118, time: '11h ago', liked: false, saved: true
+    id:4, movement:"Afrofuturism", tool:"Midjourney",
+    caption:"Queen of the seventh sun — Lagos 2140",
+    user:"aisha.renders", userImg:"https://i.pravatar.cc/40?img=11",
+    likes:3840, comments:221,
+    img:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=85",
+    height:290
   },
   {
-    id:5, user: USERS[4],
-    caption: 'Between sleep and the screen. Every night looks like this now.',
-    tag: 'Dreamcore',
-    prompt: null,
-    promptShared: false,
-    emoji: '💭', bg: 'p2',
-    reactions: { render: 456, dream: 892, glitch: 103 },
-    comments: 55, time: '1d ago', liked: true, saved: false
+    id:5, movement:"Dreamcore", tool:"DALL·E 3",
+    caption:"The corridor that appeared every Tuesday at 3am",
+    user:"liminalspace_ai", userImg:"https://i.pravatar.cc/40?img=23",
+    likes:5102, comments:304,
+    img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85",
+    height:480
   },
+  {
+    id:6, movement:"Glitch Realism", tool:"Flux",
+    caption:"Memory corruption, frame 0x00FF — self portrait",
+    user:"flux.void", userImg:"https://i.pravatar.cc/40?img=32",
+    likes:672, comments:39,
+    img:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85",
+    height:340
+  },
+  {
+    id:7, movement:"Nusantara AI", tool:"Midjourney",
+    caption:"Batik patterns decoded by the machine — a new sacred geometry",
+    user:"nusantaraink", userImg:"https://i.pravatar.cc/40?img=47",
+    likes:1890, comments:115,
+    img:"https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=85",
+    height:390
+  },
+  {
+    id:8, movement:"Cyber Baroque", tool:"Midjourney",
+    caption:"Gilded circuits — the opulence of the machine age",
+    user:"baroquebot", userImg:"https://i.pravatar.cc/40?img=61",
+    likes:1430, comments:76,
+    img:"https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85",
+    height:310
+  },
+  {
+    id:9, movement:"Bio Surreal", tool:"Stable Diffusion",
+    caption:"What grows in the space between breath and thought",
+    user:"organica.ai", userImg:"https://i.pravatar.cc/40?img=55",
+    likes:988, comments:62,
+    img:"https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=600&q=85",
+    height:430
+  },
+  {
+    id:10, movement:"Architecture AI", tool:"Flux",
+    caption:"Floating monastery — Tibetan highlands, 3500m",
+    user:"geometria.ai", userImg:"https://i.pravatar.cc/40?img=58",
+    likes:2670, comments:143,
+    img:"https://images.unsplash.com/photo-1570025289791-38b9fd7c7f05?w=600&q=85",
+    height:350
+  },
+  {
+    id:11, movement:"Brutalist AI", tool:"DALL·E 3",
+    caption:"Ministry of Shadows — Eastern European dystopia",
+    user:"concreto.ai", userImg:"https://i.pravatar.cc/40?img=36",
+    likes:1155, comments:88,
+    img:"https://images.unsplash.com/photo-1527576539890-dfa815648363?w=600&q=85",
+    height:400
+  },
+  {
+    id:12, movement:"Dreamcore", tool:"Midjourney",
+    caption:"The swimming pool at the end of the universe",
+    user:"liminalspace_ai", userImg:"https://i.pravatar.cc/40?img=23",
+    likes:4230, comments:261,
+    img:"https://images.unsplash.com/photo-1545579133-99bb5ad189be?w=600&q=85",
+    height:280
+  }
 ];
 
-const SUGGESTED = [
-  { name:'Dark Archi', handle:'@dark.archi', emoji:'🏚', posts:'340', tool:'Midjourney' },
-  { name:'Pixel Monk',  handle:'@pixel.monk',  emoji:'🧘', posts:'127', tool:'Flux'       },
-  { name:'Horrorgen',   handle:'@horrorgen',   emoji:'🩸', posts:'89',  tool:'SD XL'      },
-  { name:'SEA Renders', handle:'@sea.renders', emoji:'🌊', posts:'211', tool:'Firefly'    },
-];
+let currentFilter = 'all';
+let likedPosts = new Set();
 
-const TRENDING = [
-  { tag:'#NusantaraAI',    count:'4.2k posts' },
-  { tag:'#BrutalistAI',    count:'11.8k posts' },
-  { tag:'#HorrorRender',   count:'7.3k posts' },
-  { tag:'#GlitchRealism',  count:'3.9k posts' },
-  { tag:'#ArchitectureAI', count:'9.1k posts' },
-  { tag:'#Dreamcore',      count:'6.4k posts' },
-];
-
-const MOVEMENTS = [
-  { name:'Nusantara AI',    posts:'4.2k' },
-  { name:'Brutalist AI',    posts:'11.8k' },
-  { name:'Horror Render',   posts:'7.3k' },
-  { name:'Architecture AI', posts:'9.1k' },
-  { name:'Afrofuturism',    posts:'5.6k' },
-  { name:'Dreamcore',       posts:'6.4k' },
-];
-
-let posts = [...SEED_POSTS];
-let promptShareOn = true;
-
-// ── RENDER STORIES ────────────────────────────────────────────────────────────
-function renderStories() {
-  const bar = document.getElementById('storiesBar');
-  bar.innerHTML = USERS.map((u,i) => `
-    <div class="story-item">
-      <div class="story-ring ${i < 4 ? 'unseen' : ''}">
-        <div class="story-avatar">${u.emoji}</div>
+function renderFeed(filter='all') {
+  const masonry = document.getElementById('masonry');
+  const filtered = filter === 'all' ? arts : arts.filter(a => a.movement === filter);
+  masonry.innerHTML = filtered.map(a => `
+    <div class="art-card" onclick="openLightbox('${a.img}')">
+      <img src="${a.img}" alt="${a.caption}" style="height:${a.height}px" loading="lazy"
+           onerror="this.src='https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=85'" />
+      <div class="art-card-overlay">
+        <div class="overlay-actions">
+          <button class="overlay-btn" onclick="toggleLike(event,${a.id},this)">
+            <svg viewBox="0 0 24 24" fill="${likedPosts.has(a.id)?'white':'none'}" stroke="white" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span id="likes-${a.id}">${fmtNum(likedPosts.has(a.id)?a.likes+1:a.likes)}</span>
+          </button>
+          <button class="overlay-btn" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            ${fmtNum(a.comments)}
+          </button>
+        </div>
       </div>
-      <div class="story-name">${u.handle.replace('@','')}</div>
-    </div>
-  `).join('');
-}
-
-// ── RENDER POSTS ──────────────────────────────────────────────────────────────
-function renderPosts() {
-  document.getElementById('postsFeed').innerHTML = posts.map((p,i) => `
-    <article class="post" style="animation-delay:${i*0.06}s">
-      <div class="post-header">
-        <div class="post-user">
-          <div class="post-avatar">${p.user.emoji}</div>
-          <div>
-            <div class="post-username">${p.user.handle}</div>
-            <div class="post-model">${p.user.tool} · ${p.tag}</div>
+      <div class="art-card-body">
+        <div class="art-card-caption">${a.caption}</div>
+        <div class="art-card-meta">
+          <div class="art-card-user">
+            <img class="user-mini-avatar" src="${a.userImg}" alt="${a.user}" />
+            <span class="user-mini-name">@${a.user}</span>
           </div>
-        </div>
-        <div class="post-more">···</div>
-      </div>
-
-      <div class="post-image ${p.bg}" onclick="toggleLike(${p.id})">
-        <div style="font-size:72px;opacity:.08">${p.user.emoji}</div>
-        <div class="post-image-overlay">
-          <div class="post-image-tag">${p.tag.toUpperCase()}</div>
+          <span class="art-tool-badge">${a.tool}</span>
         </div>
       </div>
-
-      <div class="post-actions">
-        <button class="action-btn ${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
-          <svg fill="${p.liked?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
-        <button class="action-btn">
-          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        <button class="action-btn" onclick="sharePost(${p.id})">
-          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        </button>
-        <button class="action-btn action-spacer ${p.saved?'liked':''}" onclick="toggleSave(${p.id})">
-          <svg fill="${p.saved?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        </button>
-      </div>
-
-      <div class="reaction-bar">
-        <div class="reaction ${p.reactions.render>500?'active':''}" onclick="react(${p.id},'render')">RENDER ${p.reactions.render}</div>
-        <div class="reaction ${p.reactions.dream>500?'active':''}" onclick="react(${p.id},'dream')">DREAM ${p.reactions.dream}</div>
-        <div class="reaction" onclick="react(${p.id},'glitch')">GLITCH ${p.reactions.glitch}</div>
-      </div>
-
-      <div class="post-caption"><strong>${p.user.handle}</strong> ${p.caption}</div>
-
-      ${p.promptShared && p.prompt ? `
-      <div class="prompt-reveal">
-        <div class="prompt-toggle" onclick="togglePrompt(${p.id})">
-          <div class="prompt-label">PROMPT SHARED</div>
-          <div class="prompt-arrow" id="arrow-${p.id}">▾</div>
-        </div>
-        <div class="prompt-text" id="prompt-${p.id}">
-          ${p.prompt}
-          <div class="prompt-copy" onclick="copyPrompt(${p.id})">⎘ COPY PROMPT</div>
-        </div>
-      </div>` : p.prompt === null && !p.promptShared ? `
-      <div class="prompt-reveal">
-        <div class="prompt-toggle" style="cursor:default">
-          <div class="prompt-label" style="color:var(--grey4)">PROMPT KEPT PRIVATE</div>
-        </div>
-      </div>` : ''}
-
-      <div class="post-comments">View all ${p.comments} comments</div>
-      <div class="post-time">${p.time}</div>
-      <div class="comment-input-wrap">
-        <input class="comment-input" placeholder="Add a comment..."/>
-        <button class="comment-post">POST</button>
-      </div>
-    </article>
-  `).join('');
-}
-
-// ── RENDER SIDEBAR ────────────────────────────────────────────────────────────
-function renderSidebar() {
-  document.getElementById('suggestedList').innerHTML = SUGGESTED.map(u => `
-    <div class="suggested-user">
-      <div class="sug-avatar">${u.emoji}</div>
-      <div class="sug-info">
-        <div class="sug-name">${u.name}</div>
-        <div class="sug-meta">${u.posts} posts · ${u.tool}</div>
-      </div>
-      <button class="follow-btn" onclick="this.classList.toggle('following');this.textContent=this.classList.contains('following')?'FOLLOWING':'FOLLOW'">FOLLOW</button>
-    </div>
-  `).join('');
-
-  document.getElementById('trendingList').innerHTML = TRENDING.map(t => `
-    <div class="trend-item">
-      <div class="trend-tag">${t.tag}</div>
-      <div class="trend-count">${t.count}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('movementsList').innerHTML = MOVEMENTS.map(m => `
-    <div class="movement-item">
-      <div class="movement-bar"></div>
-      <div class="movement-name">${m.name}</div>
-      <div class="movement-posts">${m.posts}</div>
     </div>
   `).join('');
 }
 
-// ── INTERACTIONS ──────────────────────────────────────────────────────────────
-function toggleLike(id) {
-  const p = posts.find(x=>x.id===id);
-  if (!p) return;
-  p.liked = !p.liked;
-  renderPosts();
+function fmtNum(n) {
+  return n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
 }
-function toggleSave(id) {
-  const p = posts.find(x=>x.id===id);
-  if (!p) return;
-  p.saved = !p.saved;
-  showToast(p.saved ? 'SAVED' : 'REMOVED FROM SAVED');
-  renderPosts();
+
+function filterChip(el, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderFeed(filter);
 }
-function react(id, type) {
-  const p = posts.find(x=>x.id===id);
-  if (!p) return;
-  p.reactions[type]++;
-  renderPosts();
+
+function filterByMovement(name) {
+  currentFilter = name;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.trim() === name);
+  });
+  renderFeed(name);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function togglePrompt(id) {
-  const el = document.getElementById(`prompt-${id}`);
-  const arrow = document.getElementById(`arrow-${id}`);
-  el.classList.toggle('open');
-  arrow.classList.toggle('open');
+
+function switchFeedTab(el, tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderFeed(currentFilter);
 }
-function copyPrompt(id) {
-  const p = posts.find(x=>x.id===id);
-  if (!p || !p.prompt) return;
-  navigator.clipboard.writeText(p.prompt).then(()=>showToast('PROMPT COPIED'));
-}
-function sharePost(id) {
-  showToast('LINK COPIED — SHARE UNREAL');
-}
-function setTab(el) {
-  document.querySelectorAll('.feed-tab').forEach(t=>t.classList.remove('active'));
+
+function setTab(el, tab) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ── UPLOAD MODAL ──────────────────────────────────────────────────────────────
-function openUpload() { document.getElementById('uploadModal').classList.add('open'); }
-function closeUpload() { document.getElementById('uploadModal').classList.remove('open'); }
+function handleSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  if (!q) { renderFeed(currentFilter); return; }
+  const results = arts.filter(a =>
+    a.caption.toLowerCase().includes(q) ||
+    a.movement.toLowerCase().includes(q) ||
+    a.user.toLowerCase().includes(q) ||
+    a.tool.toLowerCase().includes(q)
+  );
+  const masonry = document.getElementById('masonry');
+  masonry.innerHTML = results.length ? results.map(a => `
+    <div class="art-card" onclick="openLightbox('${a.img}')">
+      <img src="${a.img}" alt="${a.caption}" style="height:${a.height}px" loading="lazy" />
+      <div class="art-card-overlay">
+        <div class="overlay-actions">
+          <button class="overlay-btn">❤ ${fmtNum(a.likes)}</button>
+          <button class="overlay-btn">💬 ${fmtNum(a.comments)}</button>
+        </div>
+      </div>
+      <div class="art-card-body">
+        <div class="art-card-caption">${a.caption}</div>
+        <div class="art-card-meta">
+          <div class="art-card-user">
+            <img class="user-mini-avatar" src="${a.userImg}" alt="${a.user}" />
+            <span class="user-mini-name">@${a.user}</span>
+          </div>
+          <span class="art-tool-badge">${a.tool}</span>
+        </div>
+      </div>
+    </div>
+  `).join('') : '<div style="padding:40px;text-align:center;color:var(--grey-400);grid-column:1/-1">No results found.</div>';
+}
 
-function handleUpload(e) {
+function toggleLike(e, id, btn) {
+  e.stopPropagation();
+  const art = arts.find(a => a.id === id);
+  if (!art) return;
+  if (likedPosts.has(id)) {
+    likedPosts.delete(id);
+    btn.querySelector('svg').setAttribute('fill','none');
+    document.getElementById('likes-'+id).textContent = fmtNum(art.likes);
+  } else {
+    likedPosts.add(id);
+    btn.querySelector('svg').setAttribute('fill','white');
+    document.getElementById('likes-'+id).textContent = fmtNum(art.likes+1);
+  }
+}
+
+// MODAL
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+let promptPublic = false;
+function togglePromptPublic(el) {
+  promptPublic = !promptPublic;
+  document.getElementById('promptToggle').classList.toggle('on', promptPublic);
+  document.getElementById('toggleLabel').textContent = promptPublic
+    ? 'Prompt visible to community' : 'Keep prompt private';
+}
+
+function previewFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const img = document.getElementById('uploadPreviewImg');
-    img.src = ev.target.result;
-    img.style.display = 'block';
-    document.getElementById('uploadDrop').style.display = 'none';
+    const zone = document.querySelector('.upload-zone');
+    zone.innerHTML = `<img src="${ev.target.result}" style="max-height:180px;border-radius:8px;object-fit:contain" />`;
   };
   reader.readAsDataURL(file);
 }
 
-function togglePromptShare() {
-  promptShareOn = !promptShareOn;
-  document.getElementById('promptToggle').classList.toggle('on', promptShareOn);
+// LIGHTBOX
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
 }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
-function publishPost() {
-  const caption = document.getElementById('postCaption').value.trim();
-  const tool    = document.getElementById('postTool').value;
-  const tag     = document.getElementById('postTag').value.trim() || 'Untagged';
-  const prompt  = document.getElementById('postPrompt').value.trim();
-
-  if (!caption) { showToast('ADD A CAPTION FIRST'); return; }
-
-  const newPost = {
-    id: Date.now(),
-    user: { handle:'@you', name:'You', emoji:'◻', tool: tool||'Unknown' },
-    caption,
-    tag,
-    prompt: promptShareOn && prompt ? prompt : null,
-    promptShared: promptShareOn && !!prompt,
-    emoji: '◻', bg: ['p1','p2','p3'][Math.floor(Math.random()*3)],
-    reactions: { render:0, dream:0, glitch:0 },
-    comments: 0, time: 'just now', liked: false, saved: false
-  };
-
-  posts.unshift(newPost);
-  renderPosts();
-  closeUpload();
-  showToast('PUBLISHED TO UNREAL ◻');
-
-  // reset
-  document.getElementById('postCaption').value = '';
-  document.getElementById('postTool').value = '';
-  document.getElementById('postTag').value = '';
-  document.getElementById('postPrompt').value = '';
-  document.getElementById('uploadPreviewImg').style.display = 'none';
-  document.getElementById('uploadDrop').style.display = 'block';
-}
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-renderStories();
-renderPosts();
-renderSidebar();
-document.getElementById('promptToggle').classList.add('on');
+// INIT
+renderFeed();
 </script>
 </body>
 </html>
