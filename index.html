@@ -1,617 +1,1305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UNREAL</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --blue-deep:   #0057FF;
-    --blue-mid:    #2979FF;
-    --blue-light:  #E8F0FF;
-    --blue-pale:   #F4F7FF;
-    --white:       #FFFFFF;
-    --grey-100:    #F7F8FA;
-    --grey-200:    #EAECF0;
-    --grey-400:    #9AA3B0;
-    --grey-700:    #3D4450;
-    --black:       #0D0F14;
-    --radius-sm:   8px;
-    --radius-md:   14px;
-    --radius-lg:   20px;
-    --sidebar-w:   240px;
-    --right-w:     300px;
+    --bg: #0a0a0c;
+    --surface: #111114;
+    --surface2: #18181d;
+    --border: #ffffff12;
+    --border2: #ffffff20;
+    --accent: #e8ff3c;
+    --accent2: #ff3c6e;
+    --accent3: #3caaff;
+    --text: #f0f0f0;
+    --muted: #666672;
+    --sidebar-w: 220px;
+    --rightsidebar-w: 260px;
   }
 
-  html { font-family: 'DM Sans', sans-serif; font-size: 15px; background: var(--grey-100); color: var(--black); scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--grey-200); border-radius: 4px; }
-
-  /* ── LAYOUT ── */
-  .app { display: flex; min-height: 100vh; }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: var(--sidebar-w);
-    background: var(--white);
-    border-right: 1px solid var(--grey-200);
-    position: fixed; top: 0; left: 0; height: 100vh;
-    display: flex; flex-direction: column;
-    padding: 0 0 24px;
-    overflow-y: auto;
-    z-index: 100;
-  }
-
-  .sidebar-logo {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--grey-200);
-    margin-bottom: 8px;
-  }
-  .sidebar-logo span {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    color: var(--blue-deep);
-    letter-spacing: -0.5px;
-  }
-  .sidebar-logo sup {
+  body {
+    background: var(--bg);
+    color: var(--text);
     font-family: 'DM Sans', sans-serif;
-    font-size: 9px;
-    font-weight: 500;
-    color: var(--grey-400);
-    vertical-align: super;
-    margin-left: 2px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  .sidebar-section { padding: 12px 12px 4px; }
-  .sidebar-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 1.4px;
-    text-transform: uppercase; color: var(--grey-400);
-    padding: 0 8px; margin-bottom: 6px;
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #e8ff3c0a 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
   }
-
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px; border-radius: var(--radius-sm);
-    cursor: pointer; transition: all .15s;
-    font-weight: 500; font-size: 14px; color: var(--grey-700);
-    text-decoration: none;
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #ff3c6e08 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
   }
-  .nav-item:hover { background: var(--blue-light); color: var(--blue-deep); }
-  .nav-item.active { background: var(--blue-light); color: var(--blue-deep); font-weight: 600; }
-  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-  .movement-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-  }
-
-  .sidebar-post-btn {
-    margin: 16px 12px 0;
-    background: var(--blue-deep);
-    color: var(--white);
-    border: none; border-radius: var(--radius-md);
-    padding: 12px 0; font-size: 14px; font-weight: 600;
-    cursor: pointer; transition: background .15s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .sidebar-post-btn:hover { background: #0047d0; }
 
   /* ── TOPBAR ── */
   .topbar {
-    position: fixed; top: 0;
-    left: var(--sidebar-w); right: var(--right-w);
-    height: 60px;
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--grey-200);
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(10,10,12,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center;
-    padding: 0 24px; gap: 16px;
-    z-index: 90;
+    padding: 0 20px;
+    gap: 16px;
+    z-index: 100;
   }
-
-  .search-bar {
-    flex: 1; max-width: 420px;
-    display: flex; align-items: center; gap: 10px;
-    background: var(--grey-100); border: 1.5px solid var(--grey-200);
-    border-radius: 40px; padding: 0 16px; height: 38px;
-    transition: border-color .15s;
+  .topbar-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-decoration: none;
+    margin-right: 8px;
   }
-  .search-bar:focus-within { border-color: var(--blue-mid); background: var(--white); }
-  .search-bar svg { color: var(--grey-400); width: 16px; height: 16px; flex-shrink: 0; }
-  .search-bar input {
-    border: none; background: transparent; outline: none;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black);
+  .topbar-search {
     flex: 1;
+    max-width: 360px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
   }
-  .search-bar input::placeholder { color: var(--grey-400); }
-
-  .topbar-tabs { display: flex; gap: 4px; margin-left: auto; }
-  .tab-btn {
-    padding: 7px 16px; border-radius: 40px; border: none;
-    background: transparent; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    font-weight: 500; color: var(--grey-700);
-    transition: all .15s;
+  .topbar-search::placeholder { color: var(--muted); }
+  .topbar-search:focus { border-color: var(--accent); }
+  .topbar-spacer { flex: 1; }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+  .btn-post {
+    background: var(--accent);
+    color: #0a0a0c;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
   }
-  .tab-btn.active { background: var(--blue-deep); color: var(--white); font-weight: 600; }
-  .tab-btn:hover:not(.active) { background: var(--blue-light); color: var(--blue-deep); }
+  .btn-post:hover { opacity: 0.85; transform: translateY(-1px); }
+  .topbar-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    object-fit: cover;
+    transition: transform 0.2s;
+  }
+  .topbar-avatar:hover { transform: scale(1.05); }
 
-  .avatar {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--blue-deep), #7B2FF7);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; color: white; cursor: pointer;
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr var(--rightsidebar-w);
+    gap: 0;
+    padding-top: 56px;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── LEFT SIDEBAR ── */
+  .sidebar-left {
+    position: sticky; top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-left::-webkit-scrollbar { width: 0; }
+  .nav-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 12px 20px 6px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s;
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+  }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+  .movement-dot {
+    width: 6px; height: 6px; border-radius: 50%;
     flex-shrink: 0;
+  }
+  .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 12px 20px;
   }
 
   /* ── MAIN FEED ── */
-  .main {
-    margin-left: var(--sidebar-w);
-    margin-right: var(--right-w);
-    padding-top: 80px; padding-bottom: 40px;
-    min-height: 100vh;
+  .feed-main {
+    padding: 0;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
   }
-
-  .feed-header {
-    padding: 16px 24px 0;
-    display: flex; align-items: center; justify-content: space-between;
+  .feed-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 56px;
+    background: rgba(10,10,12,0.95);
+    backdrop-filter: blur(20px);
+    z-index: 10;
   }
-  .feed-title { font-family: 'Syne', sans-serif; font-size: 18px; color: var(--black); }
-
-  .filter-row {
-    display: flex; gap: 8px;
-    padding: 14px 24px 16px;
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .filter-chip {
-    padding: 6px 14px; border-radius: 40px;
-    border: 1.5px solid var(--grey-200);
-    background: var(--white); font-size: 12px; font-weight: 500;
-    color: var(--grey-700); cursor: pointer; white-space: nowrap;
-    transition: all .15s; flex-shrink: 0;
-  }
-  .filter-chip.active { border-color: var(--blue-deep); background: var(--blue-deep); color: var(--white); }
-  .filter-chip:hover:not(.active) { border-color: var(--blue-mid); color: var(--blue-deep); }
-
-  /* ── MASONRY GRID ── */
-  .masonry {
-    column-count: 3;
-    column-gap: 14px;
-    padding: 0 24px;
-  }
-
-  .art-card {
-    break-inside: avoid;
-    background: var(--white);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    margin-bottom: 14px;
-    border: 1px solid var(--grey-200);
+  .feed-tab {
+    padding: 16px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
     cursor: pointer;
-    transition: transform .2s, box-shadow .2s;
-    position: relative;
-  }
-  .art-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,87,255,.10); }
-
-  .art-card img {
-    width: 100%; display: block;
-    object-fit: cover;
-    background: var(--grey-200);
-  }
-
-  .art-card-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.55) 100%);
-    opacity: 0; transition: opacity .2s;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 12px;
-  }
-  .art-card:hover .art-card-overlay { opacity: 1; }
-
-  .overlay-actions {
-    display: flex; gap: 10px; align-items: center;
-  }
-  .overlay-btn {
-    background: rgba(255,255,255,.18); backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 40px; padding: 5px 12px;
-    color: white; font-size: 12px; font-weight: 500;
-    cursor: pointer; display: flex; align-items: center; gap: 5px;
-    transition: background .15s;
-  }
-  .overlay-btn:hover { background: rgba(255,255,255,.32); }
-  .overlay-btn svg { width: 13px; height: 13px; }
-
-  .art-card-body { padding: 10px 12px 12px; }
-  .art-card-caption {
-    font-size: 13px; font-weight: 500; color: var(--black);
-    margin-bottom: 6px; line-height: 1.4;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .art-card-meta {
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .art-card-user {
-    display: flex; align-items: center; gap: 6px;
-  }
-  .user-mini-avatar {
-    width: 22px; height: 22px; border-radius: 50%;
-    object-fit: cover; border: 1.5px solid var(--blue-light);
-  }
-  .user-mini-name { font-size: 12px; color: var(--grey-400); font-weight: 500; }
-
-  .art-tool-badge {
-    font-size: 10px; font-weight: 600; letter-spacing: .5px;
-    background: var(--blue-light); color: var(--blue-deep);
-    border-radius: 4px; padding: 2px 7px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
     text-transform: uppercase;
   }
+  .feed-tab:hover { color: var(--text); }
+  .feed-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── RIGHT PANEL ── */
-  .right-panel {
-    width: var(--right-w);
-    position: fixed; top: 0; right: 0; height: 100vh;
-    background: var(--white);
-    border-left: 1px solid var(--grey-200);
-    padding: 24px 20px;
-    overflow-y: auto;
-    display: flex; flex-direction: column; gap: 24px;
+  /* ── POST CARD ── */
+  .post-card {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    transition: background 0.15s;
+    cursor: pointer;
   }
-
-  .right-panel-brand {
+  .post-card:hover { background: var(--surface); }
+  .post-header {
     display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
   }
-  .rp-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--blue-deep); }
-
-  .widget-title {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
-    text-transform: uppercase; color: var(--grey-400);
+  .post-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border2);
+  }
+  .post-meta { flex: 1; }
+  .post-username {
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+  }
+  .post-handle {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .post-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .post-tool-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .post-image-wrap {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface2);
+    margin-bottom: 14px;
+  }
+  .post-image {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    min-height: 200px;
+    max-height: 480px;
+  }
+  .post-movement-pill {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(10,10,12,0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  .post-caption {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.5;
     margin-bottom: 12px;
   }
+  .post-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 14px;
+  }
+  .post-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent3);
+    cursor: pointer;
+  }
+  .post-tag:hover { text-decoration: underline; }
+  .post-actions {
+    display: flex; align-items: center; gap: 20px;
+  }
+  .post-action {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s;
+    background: none; border: none;
+    padding: 0;
+  }
+  .post-action:hover { color: var(--text); }
+  .post-action.liked { color: var(--accent2); }
+  .post-action.saved { color: var(--accent); }
+  .post-action-icon { font-size: 14px; }
 
+  /* ── RIGHT SIDEBAR ── */
+  .sidebar-right {
+    position: sticky; top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    border-left: 1px solid var(--border);
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .sidebar-right::-webkit-scrollbar { width: 0; }
+  .widget {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .widget-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  /* Trending tags */
   .trending-tag {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; border-bottom: 1px solid var(--grey-200);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
   }
   .trending-tag:last-child { border-bottom: none; }
-  .tag-name { font-size: 13px; font-weight: 600; color: var(--black); }
-  .tag-count { font-size: 12px; color: var(--grey-400); }
-
-  .suggested-user {
-    display: flex; align-items: center; gap: 10px; padding: 6px 0;
+  .trending-tag-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
   }
-  .su-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
-    object-fit: cover; border: 2px solid var(--blue-light);
+  .trending-tag-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  /* Suggested users */
+  .suggested-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+  .suggested-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--border2);
     flex-shrink: 0;
   }
-  .su-info { flex: 1; min-width: 0; }
-  .su-name { font-size: 13px; font-weight: 600; color: var(--black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .su-handle { font-size: 12px; color: var(--grey-400); }
-  .follow-btn {
-    font-size: 12px; font-weight: 600;
-    color: var(--blue-deep); background: var(--blue-light);
-    border: none; border-radius: 40px; padding: 5px 12px;
-    cursor: pointer; transition: all .15s; flex-shrink: 0;
-    font-family: 'DM Sans', sans-serif;
+  .suggested-info { flex: 1; }
+  .suggested-name { font-size: 12px; font-weight: 600; }
+  .suggested-handle { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+  .btn-follow {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
   }
-  .follow-btn:hover { background: var(--blue-deep); color: white; }
+  .btn-follow:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
-  .movement-card {
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    margin-bottom: 8px;
-    position: relative; cursor: pointer;
-    transition: transform .15s;
-  }
-  .movement-card:hover { transform: scale(1.02); }
-  .movement-card img { width: 100%; height: 72px; object-fit: cover; display: block; }
-  .movement-card-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to right, rgba(0,87,255,.75), rgba(0,87,255,.25));
-    display: flex; align-items: center; padding: 0 12px;
-  }
-  .movement-card-name { font-size: 13px; font-weight: 700; color: white; }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  /* ── PROFILE PANEL (overlay) ── */
+  .profile-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+  }
+  .profile-overlay.open { display: flex; justify-content: flex-end; }
+  .profile-panel {
+    width: 380px;
+    height: 100vh;
+    background: var(--bg);
+    border-left: 1px solid var(--border2);
+    overflow-y: auto;
+    animation: slideIn 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .profile-panel::-webkit-scrollbar { width: 0; }
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .profile-cover {
+    width: 100%; height: 140px;
+    object-fit: cover;
+    display: block;
+  }
+  .profile-cover-placeholder {
+    width: 100%; height: 140px;
+    background: linear-gradient(135deg, #1a1a22 0%, #0f1a2e 40%, #1a0f20 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-cover-placeholder::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent, transparent 20px,
+      rgba(232,255,60,0.03) 20px, rgba(232,255,60,0.03) 21px
+    );
+  }
+  .profile-body { padding: 0 20px 32px; }
+  .profile-avatar-wrap {
+    margin-top: -28px;
+    margin-bottom: 12px;
+    position: relative;
+    width: 64px;
+  }
+  .profile-avatar-main {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    object-fit: cover;
+    display: block;
+  }
+  .profile-verified {
+    position: absolute; bottom: 0; right: -2px;
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
     display: flex; align-items: center; justify-content: center;
-    z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s;
+    font-size: 9px;
   }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .profile-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .profile-handle-row {
+    display: flex; align-items: center; gap: 8px;
+    margin: 4px 0 12px;
+  }
+  .profile-handle {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .profile-badge {
+    background: var(--accent2);
+    color: white;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .profile-bio {
+    font-size: 13px;
+    color: rgba(240,240,240,0.7);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .profile-tools {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 16px;
+  }
+  .profile-tool-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 9px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .profile-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .profile-stat {
+    padding: 14px 10px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .profile-stat:last-child { border-right: none; }
+  .profile-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    display: block;
+  }
+  .profile-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .profile-actions-row {
+    display: flex; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .btn-edit-profile {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 9px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-edit-profile:hover { background: var(--surface2); }
+  .btn-share-profile {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-share-profile:hover { background: var(--surface2); }
+  .profile-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .profile-grid-img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .profile-grid-img:hover { opacity: 0.75; }
+  .profile-movements {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .profile-movement-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .profile-movement-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .profile-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    transition: all 0.15s;
+    z-index: 10;
+  }
+  .profile-close:hover { background: var(--surface2); }
+  .profile-panel { position: relative; }
 
+  /* ── POST MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 300;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
   .modal {
-    background: var(--white); border-radius: var(--radius-lg);
-    width: 480px; max-width: 94vw;
-    padding: 28px; position: relative;
-    transform: translateY(16px); transition: transform .2s;
-    max-height: 90vh; overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 500px;
+    padding: 28px;
+    animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
   }
-  .modal-overlay.open .modal { transform: translateY(0); }
-
+  @keyframes scaleIn {
+    from { transform: scale(0.93); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
   .modal-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 22px;
   }
-  .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; color: var(--black); }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
   .modal-close {
-    width: 32px; height: 32px; border-radius: 50%;
-    border: none; background: var(--grey-100);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--grey-700); font-size: 18px;
-    transition: background .15s;
+    background: none; border: none;
+    font-size: 20px; color: var(--muted);
+    cursor: pointer; transition: color 0.15s;
   }
-  .modal-close:hover { background: var(--grey-200); }
-
+  .modal-close:hover { color: var(--text); }
   .upload-zone {
-    border: 2px dashed var(--grey-200); border-radius: var(--radius-md);
-    padding: 36px 20px; text-align: center; cursor: pointer;
-    transition: border-color .15s; margin-bottom: 16px;
-    background: var(--grey-100);
+    border: 2px dashed var(--border2);
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 18px;
+    cursor: pointer;
+    transition: border-color 0.2s;
   }
-  .upload-zone:hover { border-color: var(--blue-mid); background: var(--blue-pale); }
-  .upload-icon { font-size: 32px; margin-bottom: 8px; }
-  .upload-text { font-size: 14px; color: var(--grey-700); font-weight: 500; }
-  .upload-sub { font-size: 12px; color: var(--grey-400); margin-top: 4px; }
-
-  .form-field { margin-bottom: 14px; }
-  .form-label { font-size: 12px; font-weight: 600; color: var(--grey-700); margin-bottom: 6px; display: block; letter-spacing: .3px; }
-  .form-input, .form-select, .form-textarea {
-    width: 100%; border: 1.5px solid var(--grey-200);
-    border-radius: var(--radius-sm); padding: 10px 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px;
-    color: var(--black); background: var(--white);
-    outline: none; transition: border-color .15s;
-    appearance: none;
+  .upload-zone:hover { border-color: var(--accent); }
+  .upload-zone-icon { font-size: 36px; margin-bottom: 8px; }
+  .upload-zone-text { font-size: 13px; color: var(--muted); }
+  .upload-zone-hint { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
+  .modal-field {
+    margin-bottom: 14px;
   }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--blue-mid); }
-  .form-textarea { resize: vertical; min-height: 72px; }
-
+  .modal-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .modal-input, .modal-select, .modal-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-input:focus, .modal-select:focus, .modal-textarea:focus { border-color: var(--accent); }
+  .modal-select option { background: var(--surface); }
+  .modal-textarea { resize: vertical; min-height: 70px; }
   .prompt-toggle {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; background: var(--grey-100);
-    border-radius: var(--radius-sm); margin-bottom: 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
   }
-  .toggle-switch {
-    width: 36px; height: 20px; background: var(--grey-200);
-    border-radius: 10px; position: relative; transition: background .15s;
-    flex-shrink: 0;
+  .prompt-toggle input[type="checkbox"] { accent-color: var(--accent); }
+  .btn-publish {
+    width: 100%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
   }
-  .toggle-switch.on { background: var(--blue-deep); }
-  .toggle-switch::after {
-    content: ''; width: 14px; height: 14px; background: white;
-    border-radius: 50%; position: absolute; top: 3px; left: 3px;
-    transition: left .15s;
-  }
-  .toggle-switch.on::after { left: 19px; }
-  .toggle-label { font-size: 12px; color: var(--grey-700); font-weight: 500; }
+  .btn-publish:hover { opacity: 0.85; transform: translateY(-1px); }
 
-  .publish-btn {
-    width: 100%; background: var(--blue-deep); color: white;
-    border: none; border-radius: var(--radius-md); padding: 13px;
-    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: background .15s;
+  /* ── FOOTER TEXT ── */
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    line-height: 1.8;
   }
-  .publish-btn:hover { background: #0047d0; }
-
-  /* ── LIGHTBOX ── */
-  .lightbox {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 300; opacity: 0; pointer-events: none; transition: opacity .2s;
-  }
-  .lightbox.open { opacity: 1; pointer-events: all; }
-  .lightbox img { max-height: 85vh; max-width: 85vw; border-radius: var(--radius-md); object-fit: contain; }
-  .lightbox-close {
-    position: absolute; top: 20px; right: 20px;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(255,255,255,.15); border: none; color: white;
-    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
-
-  /* ── FOOTER LINKS ── */
-  .sidebar-footer { margin-top: auto; padding: 16px 20px 0; font-size: 11px; color: var(--grey-400); line-height: 1.8; }
-  .sidebar-footer a { color: var(--grey-400); text-decoration: none; }
-  .sidebar-footer a:hover { color: var(--blue-mid); }
 
   @media (max-width: 1100px) {
-    :root { --right-w: 0px; }
-    .right-panel { display: none; }
-    .topbar { right: 0; }
-    .masonry { column-count: 2; }
+    .sidebar-right { display: none; }
+    .layout { grid-template-columns: var(--sidebar-w) 1fr; }
   }
   @media (max-width: 700px) {
-    :root { --sidebar-w: 0px; }
-    .sidebar { display: none; }
-    .topbar { left: 0; }
-    .masonry { column-count: 2; padding: 0 12px; }
-    .filter-row { padding: 10px 12px; }
+    .sidebar-left { display: none; }
+    .layout { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <span>UNREAL</span><sup>BETA</sup>
+<!-- ── TOPBAR ── -->
+<nav class="topbar">
+  <a class="topbar-logo" href="#">UNREAL.</a>
+  <input class="topbar-search" type="text" placeholder="Search creators, movements, prompts…">
+  <div class="topbar-spacer"></div>
+  <div class="topbar-actions">
+    <button class="btn-post" onclick="openModal()">+ POST</button>
+    <img class="topbar-avatar"
+      src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e"
+      alt="Profile"
+      onclick="openProfile()"
+      onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=34'"
+    >
   </div>
+</nav>
 
-  <div class="sidebar-section">
-    <div class="sidebar-label">Discover</div>
-    <a class="nav-item active" onclick="setTab(this,'for-you')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Feed
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <span class="nav-section-label">Navigate</span>
+    <a class="nav-item active" href="#">
+      <span class="nav-icon">◈</span> Feed
     </a>
-    <a class="nav-item" onclick="setTab(this,'explore')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Explore
+    <a class="nav-item" href="#">
+      <span class="nav-icon">◎</span> Explore
     </a>
-    <a class="nav-item" onclick="setTab(this,'featured')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      Featured
+    <a class="nav-item" href="#">
+      <span class="nav-icon">★</span> Featured
     </a>
-    <a class="nav-item" onclick="setTab(this,'following')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Following
+    <a class="nav-item" href="#">
+      <span class="nav-icon">⊕</span> Following
     </a>
-    <a class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-      Saved
+    <a class="nav-item" href="#">
+      <span class="nav-icon">◻</span> Saved
     </a>
-  </div>
 
-  <div class="sidebar-section">
-    <div class="sidebar-label">Movements</div>
-    <a class="nav-item" onclick="filterByMovement('Nusantara AI')"><span class="movement-dot" style="background:#2979FF"></span>Nusantara AI</a>
-    <a class="nav-item" onclick="filterByMovement('Brutalist AI')"><span class="movement-dot" style="background:#0D0F14"></span>Brutalist AI</a>
-    <a class="nav-item" onclick="filterByMovement('Horror Render')"><span class="movement-dot" style="background:#C0392B"></span>Horror Render</a>
-    <a class="nav-item" onclick="filterByMovement('Architecture AI')"><span class="movement-dot" style="background:#8E44AD"></span>Architecture AI</a>
-    <a class="nav-item" onclick="filterByMovement('Afrofuturism')"><span class="movement-dot" style="background:#F39C12"></span>Afrofuturism</a>
-    <a class="nav-item" onclick="filterByMovement('Dreamcore')"><span class="movement-dot" style="background:#1ABC9C"></span>Dreamcore</a>
-    <a class="nav-item" onclick="filterByMovement('Glitch Realism')"><span class="movement-dot" style="background:#E91E63"></span>Glitch Realism</a>
-    <a class="nav-item" onclick="filterByMovement('Cyber Baroque')"><span class="movement-dot" style="background:#FF6F00"></span>Cyber Baroque</a>
-    <a class="nav-item" onclick="filterByMovement('Bio Surreal')"><span class="movement-dot" style="background:#00897B"></span>Bio Surreal</a>
-  </div>
+    <hr class="sidebar-divider">
+    <span class="nav-section-label">Movements</span>
 
-  <div class="sidebar-section">
-    <div class="sidebar-label">Tools</div>
-    <a class="nav-item"><span style="font-size:13px">🎨</span> Midjourney</a>
-    <a class="nav-item"><span style="font-size:13px">⚡</span> Flux</a>
-    <a class="nav-item"><span style="font-size:13px">🤖</span> DALL·E</a>
-    <a class="nav-item"><span style="font-size:13px">🔥</span> Firefly</a>
-    <a class="nav-item"><span style="font-size:13px">🌀</span> Stable Diffusion</a>
-  </div>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#3caaff"></span> Nusantara AI
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#e8ff3c"></span> Brutalist AI
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#ff3c6e"></span> Horror Render
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#c77dff"></span> Architecture AI
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#ff9b3c"></span> Afrofuturism
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#ff6ecf"></span> Dreamcore
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#3cffb4"></span> Glitch Realism
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#ffdc3c"></span> Solarpunk
+    </a>
+    <a class="nav-item" href="#">
+      <span class="movement-dot" style="background:#ff8c3c"></span> Dark Fantasy
+    </a>
 
-  <button class="sidebar-post-btn" onclick="openModal()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    New Post
-  </button>
+    <hr class="sidebar-divider">
+    <span class="nav-section-label">Tools</span>
+    <a class="nav-item" href="#">Midjourney</a>
+    <a class="nav-item" href="#">Flux</a>
+    <a class="nav-item" href="#">DALL·E</a>
+    <a class="nav-item" href="#">Firefly</a>
+    <a class="nav-item" href="#">Stable Diffusion</a>
+    <a class="nav-item" href="#">Ideogram</a>
 
-  <div class="sidebar-footer">
-    <a href="#">About</a> · <a href="#">Terms</a> · <a href="#">Privacy</a><br/>
-    © 2026 UNREAL
-  </div>
-</aside>
-
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="search-bar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" placeholder="Search art, prompts, movements…" id="searchInput" oninput="handleSearch()" />
-  </div>
-  <div class="topbar-tabs">
-    <button class="tab-btn active" onclick="switchFeedTab(this,'for-you')">For You</button>
-    <button class="tab-btn" onclick="switchFeedTab(this,'following')">Following</button>
-    <button class="tab-btn" onclick="switchFeedTab(this,'movements')">Movements</button>
-    <button class="tab-btn" onclick="switchFeedTab(this,'featured')">Featured</button>
-  </div>
-  <div class="avatar">NZ</div>
-</header>
-
-<!-- MAIN FEED -->
-<main class="main">
-  <div class="filter-row" id="filterRow">
-    <div class="filter-chip active" onclick="filterChip(this,'all')">All</div>
-    <div class="filter-chip" onclick="filterChip(this,'Nusantara AI')">Nusantara AI</div>
-    <div class="filter-chip" onclick="filterChip(this,'Brutalist AI')">Brutalist AI</div>
-    <div class="filter-chip" onclick="filterChip(this,'Horror Render')">Horror Render</div>
-    <div class="filter-chip" onclick="filterChip(this,'Architecture AI')">Architecture AI</div>
-    <div class="filter-chip" onclick="filterChip(this,'Afrofuturism')">Afrofuturism</div>
-    <div class="filter-chip" onclick="filterChip(this,'Dreamcore')">Dreamcore</div>
-    <div class="filter-chip" onclick="filterChip(this,'Glitch Realism')">Glitch Realism</div>
-    <div class="filter-chip" onclick="filterChip(this,'Cyber Baroque')">Cyber Baroque</div>
-    <div class="filter-chip" onclick="filterChip(this,'Bio Surreal')">Bio Surreal</div>
-  </div>
-
-  <div class="masonry" id="masonry"></div>
-</main>
-
-<!-- RIGHT PANEL -->
-<aside class="right-panel">
-  <div>
-    <div class="widget-title">Trending Tags</div>
-    <div class="trending-tag"><span class="tag-name">#NusantaraAI</span><span class="tag-count">2.4k posts</span></div>
-    <div class="trending-tag"><span class="tag-name">#MidjourneyV7</span><span class="tag-count">1.8k posts</span></div>
-    <div class="trending-tag"><span class="tag-name">#HorrorRender</span><span class="tag-count">1.2k posts</span></div>
-    <div class="trending-tag"><span class="tag-name">#DreamcoreAI</span><span class="tag-count">980 posts</span></div>
-    <div class="trending-tag"><span class="tag-name">#GlitchArt</span><span class="tag-count">754 posts</span></div>
-    <div class="trending-tag"><span class="tag-name">#AIArchitecture</span><span class="tag-count">621 posts</span></div>
-  </div>
-
-  <div>
-    <div class="widget-title">Movements</div>
-    <div class="movement-card" onclick="filterByMovement('Nusantara AI')">
-      <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=280&q=80" alt="Nusantara AI" />
-      <div class="movement-card-overlay"><span class="movement-card-name">Nusantara AI</span></div>
+    <div class="sidebar-footer">
+      About · Terms · Privacy<br>
+      © 2026 UNREAL
     </div>
-    <div class="movement-card" onclick="filterByMovement('Horror Render')">
-      <img src="https://images.unsplash.com/photo-1539604735-f3b2b9a0d7e6?w=280&q=80" alt="Horror Render" />
-      <div class="movement-card-overlay"><span class="movement-card-name">Horror Render</span></div>
+  </aside>
+
+  <!-- MAIN FEED -->
+  <main class="feed-main">
+    <div class="feed-tabs">
+      <span class="feed-tab active">For You</span>
+      <span class="feed-tab">Following</span>
+      <span class="feed-tab">Movements</span>
+      <span class="feed-tab">Featured</span>
     </div>
-    <div class="movement-card" onclick="filterByMovement('Dreamcore')">
-      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=280&q=80" alt="Dreamcore" />
-      <div class="movement-card-overlay"><span class="movement-card-name">Dreamcore</span></div>
+
+    <!-- POST 1 -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/lorelei/svg?seed=arinaSato&backgroundColor=1a1a2e&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=AS&background=2a1a3e&color=c77dff&size=38'"
+          alt="Arina Sato">
+        <div class="post-meta">
+          <div class="post-username">Arina Sato</div>
+          <div class="post-handle">@arina.renders</div>
+        </div>
+        <span class="post-time">2h ago</span>
+        <span class="post-tool-badge">MIDJOURNEY</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/unreal1/700/420"
+          onerror="this.style.background='linear-gradient(135deg,#1a0f2e,#0f1a2e)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Nusantara AI</span>
+      </div>
+      <p class="post-caption">Lost in the forests of an alternate Nusantara — where old kingdoms never fell. Every shadow here has a name.</p>
+      <div class="post-tags">
+        <span class="post-tag">#NusantaraAI</span>
+        <span class="post-tag">#FantasyWorld</span>
+        <span class="post-tag">#Midjourney</span>
+        <span class="post-tag">#AIArt</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action liked">
+          <span class="post-action-icon">♥</span> 1.2k
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 84
+        </button>
+        <button class="post-action saved">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+    <!-- POST 2 -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/micah/svg?seed=zaynCraft&backgroundColor=0f1a2e&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=ZC&background=0f1a2e&color=3caaff&size=38'"
+          alt="Zayn Craft">
+        <div class="post-meta">
+          <div class="post-username">Zayn Craft</div>
+          <div class="post-handle">@zayn.craft</div>
+        </div>
+        <span class="post-time">5h ago</span>
+        <span class="post-tool-badge">FLUX</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/brutalist88/700/500"
+          onerror="this.style.background='linear-gradient(135deg,#1a1a0f,#0f2e1a)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Brutalist AI</span>
+      </div>
+      <p class="post-caption">Brutalist utopia series — concrete dreams and steel skies. Prompt took 47 iterations to get this right.</p>
+      <div class="post-tags">
+        <span class="post-tag">#BrutalistAI</span>
+        <span class="post-tag">#Architecture</span>
+        <span class="post-tag">#Flux</span>
+        <span class="post-tag">#UrbanAI</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action">
+          <span class="post-action-icon">♥</span> 867
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 51
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+    <!-- POST 3 -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/notionists/svg?seed=maeveOkonkwo&backgroundColor=2e1a0f&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=MO&background=2e1a0f&color=ff9b3c&size=38'"
+          alt="Maeve Okonkwo">
+        <div class="post-meta">
+          <div class="post-username">Maeve Okonkwo</div>
+          <div class="post-handle">@maeve.visions</div>
+        </div>
+        <span class="post-time">7h ago</span>
+        <span class="post-tool-badge">DALL·E 3</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/afrofuture7/700/460"
+          onerror="this.style.background='linear-gradient(135deg,#2e1a0f,#3d0f1a)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Afrofuturism</span>
+      </div>
+      <p class="post-caption">Ancestors as gods. The future remembers where it came from. New series dropping this week — follow to see all 12 pieces.</p>
+      <div class="post-tags">
+        <span class="post-tag">#Afrofuturism</span>
+        <span class="post-tag">#DALLe3</span>
+        <span class="post-tag">#DigitalArt</span>
+        <span class="post-tag">#SeriesWork</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action liked">
+          <span class="post-action-icon">♥</span> 3.4k
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 210
+        </button>
+        <button class="post-action saved">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+    <!-- POST 4 -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/adventurer/svg?seed=rioTakeda&backgroundColor=0f2e2a&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=RT&background=0f2e2a&color=3cffb4&size=38'"
+          alt="Rio Takeda">
+        <div class="post-meta">
+          <div class="post-username">Rio Takeda</div>
+          <div class="post-handle">@rio.glitch</div>
+        </div>
+        <span class="post-time">11h ago</span>
+        <span class="post-tool-badge">STABLE DIFFUSION</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/glitch99/700/440"
+          onerror="this.style.background='linear-gradient(135deg,#0f2e2a,#0f0f2e)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Glitch Realism</span>
+      </div>
+      <p class="post-caption">Data corruption as poetry — what if the glitch is actually the truest image? Custom LoRA trained on 80s VHS noise + photorealistic faces.</p>
+      <div class="post-tags">
+        <span class="post-tag">#GlitchArt</span>
+        <span class="post-tag">#LoRA</span>
+        <span class="post-tag">#StableDiffusion</span>
+        <span class="post-tag">#GlitchRealism</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action">
+          <span class="post-action-icon">♥</span> 521
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 33
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+    <!-- POST 5 -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=syriaHall&backgroundColor=2e0f1a&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=SH&background=2e0f1a&color=ff3c6e&size=38'"
+          alt="Syria Hall">
+        <div class="post-meta">
+          <div class="post-username">Syria Hall</div>
+          <div class="post-handle">@syria.hal</div>
+        </div>
+        <span class="post-time">1d ago</span>
+        <span class="post-tool-badge">FIREFLY</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/horrorrender22/700/430"
+          onerror="this.style.background='linear-gradient(135deg,#2e0f1a,#1a0f0f)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Horror Render</span>
+      </div>
+      <p class="post-caption">She's been standing in that field for 40 years. Nobody knows why. Nobody dares to ask. — Horror Render series №6.</p>
+      <div class="post-tags">
+        <span class="post-tag">#HorrorRender</span>
+        <span class="post-tag">#AdobeFirefly</span>
+        <span class="post-tag">#AIHorror</span>
+        <span class="post-tag">#DarkAI</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action liked">
+          <span class="post-action-icon">♥</span> 2.1k
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 147
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+    <!-- POST 6 — NZ/JUZZTHIN -->
+    <article class="post-card">
+      <div class="post-header">
+        <img class="post-avatar"
+          src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e&radius=50"
+          onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=38'"
+          alt="NZ">
+        <div class="post-meta">
+          <div class="post-username">NZ</div>
+          <div class="post-handle">@juzzthin</div>
+        </div>
+        <span class="post-time">2d ago</span>
+        <span class="post-tool-badge">MIDJOURNEY</span>
+      </div>
+      <div class="post-image-wrap">
+        <img class="post-image"
+          src="https://picsum.photos/seed/nusantaraKL55/700/450"
+          onerror="this.style.background='linear-gradient(135deg,#0a0a1a,#1a1a0f)'; this.style.height='300px'"
+          alt="AI artwork">
+        <span class="post-movement-pill">Nusantara AI</span>
+      </div>
+      <p class="post-caption">KL 3047. The towers remember the kampung. The jungle grew back. Minangkabau geometry in every skyline. This one hit different.</p>
+      <div class="post-tags">
+        <span class="post-tag">#NusantaraAI</span>
+        <span class="post-tag">#KL</span>
+        <span class="post-tag">#Minangkabau</span>
+        <span class="post-tag">#Futurism</span>
+      </div>
+      <div class="post-actions">
+        <button class="post-action liked">
+          <span class="post-action-icon">♥</span> 4.8k
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">◎</span> 312
+        </button>
+        <button class="post-action saved">
+          <span class="post-action-icon">◻</span> Save
+        </button>
+        <button class="post-action">
+          <span class="post-action-icon">↗</span> Share
+        </button>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+
+    <!-- Suggested Creators -->
+    <div class="widget">
+      <div class="widget-title">Suggested Creators</div>
+
+      <div class="suggested-user">
+        <img class="suggested-avatar"
+          src="https://api.dicebear.com/7.x/bottts/svg?seed=lena77&backgroundColor=1a1a2e"
+          onerror="this.src='https://ui-avatars.com/api/?name=LK&background=1a1a2e&color=3caaff&size=34'"
+          alt="Lena K">
+        <div class="suggested-info">
+          <div class="suggested-name">Lena K</div>
+          <div class="suggested-handle">@dreamcore.lena</div>
+        </div>
+        <button class="btn-follow">Follow</button>
+      </div>
+
+      <div class="suggested-user">
+        <img class="suggested-avatar"
+          src="https://api.dicebear.com/7.x/pixel-art/svg?seed=omarFlux&backgroundColor=0f2e1a"
+          onerror="this.src='https://ui-avatars.com/api/?name=OF&background=0f2e1a&color=3cffb4&size=34'"
+          alt="Omar F">
+        <div class="suggested-info">
+          <div class="suggested-name">Omar F</div>
+          <div class="suggested-handle">@flux.omar</div>
+        </div>
+        <button class="btn-follow">Follow</button>
+      </div>
+
+      <div class="suggested-user">
+        <img class="suggested-avatar"
+          src="https://api.dicebear.com/7.x/shapes/svg?seed=yunaVis&backgroundColor=2e0f2e"
+          onerror="this.src='https://ui-avatars.com/api/?name=YV&background=2e0f2e&color=c77dff&size=34'"
+          alt="Yuna V">
+        <div class="suggested-info">
+          <div class="suggested-name">Yuna V</div>
+          <div class="suggested-handle">@yuna.visions</div>
+        </div>
+        <button class="btn-follow">Follow</button>
+      </div>
+
+      <div class="suggested-user">
+        <img class="suggested-avatar"
+          src="https://api.dicebear.com/7.x/thumbs/svg?seed=carlosDark&backgroundColor=2e1a0f"
+          onerror="this.src='https://ui-avatars.com/api/?name=CD&background=2e1a0f&color=ff9b3c&size=34'"
+          alt="Carlos D">
+        <div class="suggested-info">
+          <div class="suggested-name">Carlos D</div>
+          <div class="suggested-handle">@carlos.darkfx</div>
+        </div>
+        <button class="btn-follow">Follow</button>
+      </div>
+
+      <div class="suggested-user">
+        <img class="suggested-avatar"
+          src="https://api.dicebear.com/7.x/identicon/svg?seed=priyaMJ&backgroundColor=1a2e0f"
+          onerror="this.src='https://ui-avatars.com/api/?name=PM&background=1a2e0f&color=e8ff3c&size=34'"
+          alt="Priya M">
+        <div class="suggested-info">
+          <div class="suggested-name">Priya M</div>
+          <div class="suggested-handle">@priya.mj</div>
+        </div>
+        <button class="btn-follow">Follow</button>
+      </div>
+    </div>
+
+    <!-- Trending Tags -->
+    <div class="widget">
+      <div class="widget-title">Trending Tags</div>
+      <div class="trending-tag"><span class="trending-tag-name">#NusantaraAI</span><span class="trending-tag-count">4.2k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#HorrorRender</span><span class="trending-tag-count">3.1k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#Afrofuturism</span><span class="trending-tag-count">2.8k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#GlitchRealism</span><span class="trending-tag-count">1.9k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#BrutalistAI</span><span class="trending-tag-count">1.4k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#Dreamcore</span><span class="trending-tag-count">1.1k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#Solarpunk</span><span class="trending-tag-count">980 posts</span></div>
+    </div>
+
+    <!-- Active Movements -->
+    <div class="widget">
+      <div class="widget-title">Active Movements</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#3caaff;flex-shrink:0"></span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">Nusantara AI</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">612 active today</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#ff3c6e;flex-shrink:0"></span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">Horror Render</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">448 active today</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#ff9b3c;flex-shrink:0"></span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">Afrofuturism</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">387 active today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ── PROFILE PANEL ── -->
+<div class="profile-overlay" id="profileOverlay" onclick="handleOverlayClick(event)">
+  <div class="profile-panel" id="profilePanel">
+    <button class="profile-close" onclick="closeProfile()">✕</button>
+
+    <!-- Cover -->
+    <div class="profile-cover-placeholder"></div>
+
+    <!-- Body -->
+    <div class="profile-body">
+      <div class="profile-avatar-wrap">
+        <img class="profile-avatar-main"
+          src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e"
+          onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=64'"
+          alt="NZ">
+        <div class="profile-verified">✓</div>
+      </div>
+
+      <div class="profile-name">NZ</div>
+      <div class="profile-handle-row">
+        <span class="profile-handle">@juzzthin</span>
+        <span class="profile-badge">CREATOR</span>
+      </div>
+
+      <p class="profile-bio">
+        Rapper · Filmmaker · Builder. Managing Director @ F12 Records. Making AI art from KL — Nusantara worlds that haven't been rendered yet.
+      </p>
+
+      <div class="profile-tools">
+        <span class="profile-tool-chip">MIDJOURNEY</span>
+        <span class="profile-tool-chip">FLUX</span>
+        <span class="profile-tool-chip">DALL·E 3</span>
+        <span class="profile-tool-chip">FIREFLY</span>
+      </div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <span class="profile-stat-val">247</span>
+          <span class="profile-stat-label">Posts</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-val">18.4k</span>
+          <span class="profile-stat-label">Followers</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-val">312</span>
+          <span class="profile-stat-label">Following</span>
+        </div>
+      </div>
+
+      <div class="profile-actions-row">
+        <button class="btn-edit-profile">Edit Profile</button>
+        <button class="btn-share-profile">↗</button>
+      </div>
+
+      <!-- My Posts grid -->
+      <div class="profile-section-label">My Posts</div>
+      <div class="profile-grid">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/nusantaraKL55/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post2juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post3juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post4juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post5juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post6juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post7juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post8juz/200/200" onerror="this.style.background='#18181d'" alt="">
+        <img class="profile-grid-img" src="https://picsum.photos/seed/post9juz/200/200" onerror="this.style.background='#18181d'" alt="">
+      </div>
+
+      <!-- Movements -->
+      <div class="profile-section-label">My Movements</div>
+      <div class="profile-movements">
+        <span class="profile-movement-chip">Nusantara AI</span>
+        <span class="profile-movement-chip">Horror Render</span>
+        <span class="profile-movement-chip">Dreamcore</span>
+        <span class="profile-movement-chip">Glitch Realism</span>
+      </div>
     </div>
   </div>
+</div>
 
-  <div>
-    <div class="widget-title">Suggested Creators</div>
-    <div class="suggested-user">
-      <img class="su-avatar" src="https://i.pravatar.cc/80?img=11" alt="creator" />
-      <div class="su-info"><div class="su-name">Aisha.renders</div><div class="su-handle">Afrofuturism · KL</div></div>
-      <button class="follow-btn">Follow</button>
-    </div>
-    <div class="suggested-user">
-      <img class="su-avatar" src="https://i.pravatar.cc/80?img=32" alt="creator" />
-      <div class="su-info"><div class="su-name">flux.void</div><div class="su-handle">Glitch Realism · SG</div></div>
-      <button class="follow-btn">Follow</button>
-    </div>
-    <div class="suggested-user">
-      <img class="su-avatar" src="https://i.pravatar.cc/80?img=47" alt="creator" />
-      <div class="su-info"><div class="su-name">nusantaraink</div><div class="su-handle">Nusantara AI · JKT</div></div>
-      <button class="follow-btn">Follow</button>
-    </div>
-    <div class="suggested-user">
-      <img class="su-avatar" src="https://i.pravatar.cc/80?img=58" alt="creator" />
-      <div class="su-info"><div class="su-name">geometria.ai</div><div class="su-handle">Architecture AI · BKK</div></div>
-      <button class="follow-btn">Follow</button>
-    </div>
-  </div>
-</aside>
-
-<!-- UPLOAD MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-  <div class="modal">
+<!-- ── POST MODAL ── -->
+<div class="modal-overlay" id="postModal" onclick="handleModalClick(event)">
+  <div class="modal" id="modalBox">
     <div class="modal-header">
-      <div class="modal-title">New Post</div>
+      <span class="modal-title">NEW POST</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-      <div class="upload-icon">🖼️</div>
-      <div class="upload-text">Drop your AI art here or click to browse</div>
-      <div class="upload-sub">JPG · PNG · WEBP · up to 20MB</div>
-      <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="previewFile(event)" />
+    <div class="upload-zone">
+      <div class="upload-zone-icon">◻</div>
+      <div class="upload-zone-text">Drop your AI art here</div>
+      <div class="upload-zone-hint">JPG · PNG · WEBP · up to 20MB</div>
     </div>
-    <div class="form-field">
-      <label class="form-label">Caption</label>
-      <input class="form-input" type="text" placeholder="Describe your work…" />
+    <div class="modal-field">
+      <label class="modal-label">Caption</label>
+      <textarea class="modal-textarea" placeholder="Describe your piece…"></textarea>
     </div>
-    <div class="form-field">
-      <label class="form-label">AI Tool Used</label>
-      <select class="form-select">
+    <div class="modal-field">
+      <label class="modal-label">AI Tool Used</label>
+      <select class="modal-select">
         <option value="">Select tool…</option>
         <option>Midjourney</option>
         <option>Flux</option>
@@ -623,292 +1311,92 @@
         <option>Other</option>
       </select>
     </div>
-    <div class="form-field">
-      <label class="form-label">Movement / Tag</label>
-      <select class="form-select">
-        <option value="">Select movement…</option>
-        <option>Nusantara AI</option>
-        <option>Brutalist AI</option>
-        <option>Horror Render</option>
-        <option>Architecture AI</option>
-        <option>Afrofuturism</option>
-        <option>Dreamcore</option>
-        <option>Glitch Realism</option>
-        <option>Cyber Baroque</option>
-        <option>Bio Surreal</option>
-      </select>
+    <div class="modal-field">
+      <label class="modal-label">Movement / Tag</label>
+      <input class="modal-input" type="text" placeholder="e.g. Nusantara AI, Horror Render…">
     </div>
-    <div class="form-field">
-      <label class="form-label">Prompt (optional)</label>
-      <textarea class="form-textarea" placeholder="Share the prompt you used…"></textarea>
+    <div class="modal-field">
+      <label class="modal-label">Prompt (optional)</label>
+      <textarea class="modal-textarea" placeholder="Share your prompt with the community…" style="min-height:56px"></textarea>
     </div>
-    <div class="prompt-toggle" onclick="togglePromptPublic(this)">
-      <div class="toggle-switch" id="promptToggle"></div>
-      <span class="toggle-label" id="toggleLabel">Keep prompt private</span>
-    </div>
-    <button class="publish-btn">Publish to UNREAL</button>
+    <label class="prompt-toggle">
+      <input type="checkbox" checked>
+      Share prompt publicly — community can see &amp; copy
+    </label>
+    <button class="btn-publish">Publish to UNREAL</button>
   </div>
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightboxImg" src="" alt="preview" />
-</div>
-
 <script>
-// ── ARTWORK DATA ──
-const arts = [
-  {
-    id:1, movement:"Nusantara AI", tool:"Midjourney",
-    caption:"Ancient Majapahit cityscape reimagined through neural synthesis",
-    user:"nusantaraink", userImg:"https://i.pravatar.cc/40?img=47",
-    likes:1204, comments:88,
-    img:"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=85",
-    height:320
-  },
-  {
-    id:2, movement:"Architecture AI", tool:"Flux",
-    caption:"Brutalist cathedral — overgrown and forgotten by the modern world",
-    user:"geometria.ai", userImg:"https://i.pravatar.cc/40?img=58",
-    likes:876, comments:42,
-    img:"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=85",
-    height:420
-  },
-  {
-    id:3, movement:"Horror Render", tool:"Stable Diffusion",
-    caption:"She stood at the edge of the marsh for three days",
-    user:"voidcrawler", userImg:"https://i.pravatar.cc/40?img=13",
-    likes:2311, comments:197,
-    img:"https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=85",
-    height:370
-  },
-  {
-    id:4, movement:"Afrofuturism", tool:"Midjourney",
-    caption:"Queen of the seventh sun — Lagos 2140",
-    user:"aisha.renders", userImg:"https://i.pravatar.cc/40?img=11",
-    likes:3840, comments:221,
-    img:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=85",
-    height:290
-  },
-  {
-    id:5, movement:"Dreamcore", tool:"DALL·E 3",
-    caption:"The corridor that appeared every Tuesday at 3am",
-    user:"liminalspace_ai", userImg:"https://i.pravatar.cc/40?img=23",
-    likes:5102, comments:304,
-    img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85",
-    height:480
-  },
-  {
-    id:6, movement:"Glitch Realism", tool:"Flux",
-    caption:"Memory corruption, frame 0x00FF — self portrait",
-    user:"flux.void", userImg:"https://i.pravatar.cc/40?img=32",
-    likes:672, comments:39,
-    img:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85",
-    height:340
-  },
-  {
-    id:7, movement:"Nusantara AI", tool:"Midjourney",
-    caption:"Batik patterns decoded by the machine — a new sacred geometry",
-    user:"nusantaraink", userImg:"https://i.pravatar.cc/40?img=47",
-    likes:1890, comments:115,
-    img:"https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=85",
-    height:390
-  },
-  {
-    id:8, movement:"Cyber Baroque", tool:"Midjourney",
-    caption:"Gilded circuits — the opulence of the machine age",
-    user:"baroquebot", userImg:"https://i.pravatar.cc/40?img=61",
-    likes:1430, comments:76,
-    img:"https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85",
-    height:310
-  },
-  {
-    id:9, movement:"Bio Surreal", tool:"Stable Diffusion",
-    caption:"What grows in the space between breath and thought",
-    user:"organica.ai", userImg:"https://i.pravatar.cc/40?img=55",
-    likes:988, comments:62,
-    img:"https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=600&q=85",
-    height:430
-  },
-  {
-    id:10, movement:"Architecture AI", tool:"Flux",
-    caption:"Floating monastery — Tibetan highlands, 3500m",
-    user:"geometria.ai", userImg:"https://i.pravatar.cc/40?img=58",
-    likes:2670, comments:143,
-    img:"https://images.unsplash.com/photo-1570025289791-38b9fd7c7f05?w=600&q=85",
-    height:350
-  },
-  {
-    id:11, movement:"Brutalist AI", tool:"DALL·E 3",
-    caption:"Ministry of Shadows — Eastern European dystopia",
-    user:"concreto.ai", userImg:"https://i.pravatar.cc/40?img=36",
-    likes:1155, comments:88,
-    img:"https://images.unsplash.com/photo-1527576539890-dfa815648363?w=600&q=85",
-    height:400
-  },
-  {
-    id:12, movement:"Dreamcore", tool:"Midjourney",
-    caption:"The swimming pool at the end of the universe",
-    user:"liminalspace_ai", userImg:"https://i.pravatar.cc/40?img=23",
-    likes:4230, comments:261,
-    img:"https://images.unsplash.com/photo-1545579133-99bb5ad189be?w=600&q=85",
-    height:280
+  // Profile panel
+  function openProfile() {
+    document.getElementById('profileOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
-];
+  function closeProfile() {
+    document.getElementById('profileOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('profileOverlay')) closeProfile();
+  }
 
-let currentFilter = 'all';
-let likedPosts = new Set();
+  // Post modal
+  function openModal() {
+    document.getElementById('postModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('postModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleModalClick(e) {
+    if (e.target === document.getElementById('postModal')) closeModal();
+  }
 
-function renderFeed(filter='all') {
-  const masonry = document.getElementById('masonry');
-  const filtered = filter === 'all' ? arts : arts.filter(a => a.movement === filter);
-  masonry.innerHTML = filtered.map(a => `
-    <div class="art-card" onclick="openLightbox('${a.img}')">
-      <img src="${a.img}" alt="${a.caption}" style="height:${a.height}px" loading="lazy"
-           onerror="this.src='https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=85'" />
-      <div class="art-card-overlay">
-        <div class="overlay-actions">
-          <button class="overlay-btn" onclick="toggleLike(event,${a.id},this)">
-            <svg viewBox="0 0 24 24" fill="${likedPosts.has(a.id)?'white':'none'}" stroke="white" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            <span id="likes-${a.id}">${fmtNum(likedPosts.has(a.id)?a.likes+1:a.likes)}</span>
-          </button>
-          <button class="overlay-btn" onclick="event.stopPropagation()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            ${fmtNum(a.comments)}
-          </button>
-        </div>
-      </div>
-      <div class="art-card-body">
-        <div class="art-card-caption">${a.caption}</div>
-        <div class="art-card-meta">
-          <div class="art-card-user">
-            <img class="user-mini-avatar" src="${a.userImg}" alt="${a.user}" />
-            <span class="user-mini-name">@${a.user}</span>
-          </div>
-          <span class="art-tool-badge">${a.tool}</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function fmtNum(n) {
-  return n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
-}
-
-function filterChip(el, filter) {
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  currentFilter = filter;
-  renderFeed(filter);
-}
-
-function filterByMovement(name) {
-  currentFilter = name;
-  document.querySelectorAll('.filter-chip').forEach(c => {
-    c.classList.toggle('active', c.textContent.trim() === name);
+  // Feed tabs
+  document.querySelectorAll('.feed-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
   });
-  renderFeed(name);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
 
-function switchFeedTab(el, tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderFeed(currentFilter);
-}
+  // Nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
 
-function setTab(el, tab) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-}
+  // Like / save toggles
+  document.querySelectorAll('.post-action').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const icon = btn.querySelector('.post-action-icon')?.textContent;
+      if (icon === '♥') btn.classList.toggle('liked');
+      if (icon === '◻') btn.classList.toggle('saved');
+    });
+  });
 
-function handleSearch() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  if (!q) { renderFeed(currentFilter); return; }
-  const results = arts.filter(a =>
-    a.caption.toLowerCase().includes(q) ||
-    a.movement.toLowerCase().includes(q) ||
-    a.user.toLowerCase().includes(q) ||
-    a.tool.toLowerCase().includes(q)
-  );
-  const masonry = document.getElementById('masonry');
-  masonry.innerHTML = results.length ? results.map(a => `
-    <div class="art-card" onclick="openLightbox('${a.img}')">
-      <img src="${a.img}" alt="${a.caption}" style="height:${a.height}px" loading="lazy" />
-      <div class="art-card-overlay">
-        <div class="overlay-actions">
-          <button class="overlay-btn">❤ ${fmtNum(a.likes)}</button>
-          <button class="overlay-btn">💬 ${fmtNum(a.comments)}</button>
-        </div>
-      </div>
-      <div class="art-card-body">
-        <div class="art-card-caption">${a.caption}</div>
-        <div class="art-card-meta">
-          <div class="art-card-user">
-            <img class="user-mini-avatar" src="${a.userImg}" alt="${a.user}" />
-            <span class="user-mini-name">@${a.user}</span>
-          </div>
-          <span class="art-tool-badge">${a.tool}</span>
-        </div>
-      </div>
-    </div>
-  `).join('') : '<div style="padding:40px;text-align:center;color:var(--grey-400);grid-column:1/-1">No results found.</div>';
-}
-
-function toggleLike(e, id, btn) {
-  e.stopPropagation();
-  const art = arts.find(a => a.id === id);
-  if (!art) return;
-  if (likedPosts.has(id)) {
-    likedPosts.delete(id);
-    btn.querySelector('svg').setAttribute('fill','none');
-    document.getElementById('likes-'+id).textContent = fmtNum(art.likes);
-  } else {
-    likedPosts.add(id);
-    btn.querySelector('svg').setAttribute('fill','white');
-    document.getElementById('likes-'+id).textContent = fmtNum(art.likes+1);
-  }
-}
-
-// MODAL
-function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function handleOverlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
-
-let promptPublic = false;
-function togglePromptPublic(el) {
-  promptPublic = !promptPublic;
-  document.getElementById('promptToggle').classList.toggle('on', promptPublic);
-  document.getElementById('toggleLabel').textContent = promptPublic
-    ? 'Prompt visible to community' : 'Keep prompt private';
-}
-
-function previewFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const zone = document.querySelector('.upload-zone');
-    zone.innerHTML = `<img src="${ev.target.result}" style="max-height:180px;border-radius:8px;object-fit:contain" />`;
-  };
-  reader.readAsDataURL(file);
-}
-
-// LIGHTBOX
-function openLightbox(src) {
-  document.getElementById('lightboxImg').src = src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
-
-// INIT
-renderFeed();
+  // Follow button toggle
+  document.querySelectorAll('.btn-follow').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.textContent === 'Follow') {
+        btn.textContent = 'Following';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = 'var(--bg)';
+        btn.style.borderColor = 'var(--accent)';
+      } else {
+        btn.textContent = 'Follow';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+    });
+  });
 </script>
 </body>
 </html>
