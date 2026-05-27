@@ -3,1400 +3,1109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNREAL</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>UNREAL — AI Art Community</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0c;
-    --surface: #111114;
-    --surface2: #18181d;
-    --border: #ffffff12;
-    --border2: #ffffff20;
-    --accent: #e8ff3c;
-    --accent2: #ff3c6e;
-    --accent3: #3caaff;
-    --text: #f0f0f0;
-    --muted: #666672;
-    --sidebar-w: 220px;
-    --rightsidebar-w: 260px;
+    --cream: #f8f4ee;
+    --white: #ffffff;
+    --blue-deep: #1a3a5c;
+    --blue-mid: #2b5f8e;
+    --blue-light: #4a90c4;
+    --blue-pale: #d6e8f5;
+    --brown-dark: #5c3d2e;
+    --brown-mid: #8b6252;
+    --brown-warm: #c4956a;
+    --brown-sand: #e8d5c0;
+    --brown-parchment: #f2e8dc;
+    --text-dark: #1c1512;
+    --text-mid: #4a3728;
+    --text-light: #8a7060;
+    --border: rgba(92,61,46,0.15);
+    --shadow-brown: 0 4px 24px rgba(92,61,46,0.12);
+    --shadow-blue: 0 4px 24px rgba(26,58,92,0.12);
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
     font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
     min-height: 100vh;
-    overflow-x: hidden;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   }
 
-  /* Ambient background */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -200px; left: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, #e8ff3c0a 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky; top:0; z-index:100;
+    background: var(--blue-deep);
+    border-bottom: 2px solid var(--brown-warm);
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 2rem; height:56px;
+    box-shadow: 0 2px 20px rgba(26,58,92,0.3);
   }
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: -200px; right: -100px;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, #ff3c6e08 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size:1.5rem; font-weight:900; letter-spacing:0.12em;
+    color: var(--cream);
+    text-decoration:none;
   }
-
-  /* ── TOPBAR ── */
-  .topbar {
-    position: fixed; top: 0; left: 0; right: 0;
-    height: 56px;
-    background: rgba(10,10,12,0.92);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center;
-    padding: 0 20px;
-    gap: 16px;
-    z-index: 100;
+  .nav-logo span { color: var(--brown-warm); }
+  .nav-tabs {
+    display:flex; gap:0.25rem;
   }
-  .topbar-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
-    letter-spacing: 4px;
-    color: var(--accent);
-    text-decoration: none;
-    margin-right: 8px;
+  .nav-tab {
+    font-family:'DM Mono',monospace; font-size:0.7rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:rgba(248,244,238,0.6);
+    border:none; background:none; cursor:pointer;
+    padding:0.4rem 0.8rem; border-radius:4px; transition:all 0.2s;
   }
-  .topbar-search {
-    flex: 1;
-    max-width: 360px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
+  .nav-tab:hover, .nav-tab.active {
+    background:rgba(196,149,106,0.2); color:var(--brown-warm);
   }
-  .topbar-search::placeholder { color: var(--muted); }
-  .topbar-search:focus { border-color: var(--accent); }
-  .topbar-spacer { flex: 1; }
-  .topbar-actions { display: flex; align-items: center; gap: 10px; }
-  .btn-post {
-    background: var(--accent);
-    color: #0a0a0c;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: transform 0.15s, opacity 0.15s;
+  .nav-actions { display:flex; gap:0.75rem; align-items:center; }
+  .btn-nav {
+    font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600;
+    border:none; cursor:pointer; border-radius:6px; transition:all 0.2s;
+    padding:0.45rem 1rem;
   }
-  .btn-post:hover { opacity: 0.85; transform: translateY(-1px); }
-  .topbar-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    cursor: pointer;
-    object-fit: cover;
-    transition: transform 0.2s;
+  .btn-outline {
+    background:transparent;
+    border:1.5px solid rgba(196,149,106,0.5);
+    color:var(--brown-warm);
   }
-  .topbar-avatar:hover { transform: scale(1.05); }
+  .btn-outline:hover { border-color:var(--brown-warm); background:rgba(196,149,106,0.1); }
+  .btn-primary {
+    background: linear-gradient(135deg,var(--brown-warm),var(--brown-mid));
+    color:var(--cream);
+    box-shadow:0 2px 10px rgba(196,149,106,0.3);
+  }
+  .btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(196,149,106,0.4); }
 
   /* ── LAYOUT ── */
-  .layout {
-    display: grid;
-    grid-template-columns: var(--sidebar-w) 1fr var(--rightsidebar-w);
-    gap: 0;
-    padding-top: 56px;
-    min-height: 100vh;
-    position: relative; z-index: 1;
-  }
+  .layout { display:grid; grid-template-columns:220px 1fr 260px; gap:0; min-height:calc(100vh - 56px); }
 
   /* ── LEFT SIDEBAR ── */
   .sidebar-left {
-    position: sticky; top: 56px;
-    height: calc(100vh - 56px);
-    overflow-y: auto;
-    border-right: 1px solid var(--border);
-    padding: 24px 0;
-    display: flex; flex-direction: column; gap: 4px;
+    border-right:1px solid var(--border);
+    background: linear-gradient(180deg, var(--white) 0%, var(--brown-parchment) 100%);
+    padding:1.5rem 1rem;
+    position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
   }
-  .sidebar-left::-webkit-scrollbar { width: 0; }
-  .nav-section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    padding: 12px 20px 6px;
-    text-transform: uppercase;
+  .sidebar-section { margin-bottom:2rem; }
+  .sidebar-label {
+    font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-light); margin-bottom:0.75rem;
+    padding:0 0.5rem;
   }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 20px;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.15s;
-    text-decoration: none;
-    position: relative;
+  .sidebar-item {
+    display:flex; align-items:center; gap:0.6rem;
+    padding:0.5rem 0.75rem; border-radius:8px; cursor:pointer;
+    font-size:0.85rem; font-weight:500; color:var(--text-mid);
+    transition:all 0.15s; border:none; background:none; width:100%; text-align:left;
   }
-  .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--accent); }
-  .nav-item.active::before {
-    content: '';
-    position: absolute; left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--accent);
+  .sidebar-item:hover { background:var(--brown-sand); color:var(--brown-dark); }
+  .sidebar-item.active {
+    background: linear-gradient(135deg,var(--blue-pale),rgba(196,149,106,0.15));
+    color:var(--blue-deep); font-weight:600;
+    border-left:3px solid var(--blue-mid);
+    border-radius:0 8px 8px 0;
   }
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-  .movement-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    flex-shrink: 0;
+  .sidebar-item .dot {
+    width:6px; height:6px; border-radius:50%;
+    background:var(--brown-warm); flex-shrink:0;
   }
-  .sidebar-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 12px 20px;
+  .movement-tag {
+    display:inline-block; font-size:0.72rem; font-weight:500;
+    padding:0.25rem 0.6rem; border-radius:20px; margin:0.2rem;
+    background:var(--brown-sand); color:var(--brown-dark);
+    cursor:pointer; border:1px solid transparent; transition:all 0.15s;
   }
+  .movement-tag:hover {
+    border-color:var(--blue-mid); color:var(--blue-deep);
+    background:var(--blue-pale);
+  }
+  .tool-chip {
+    display:flex; align-items:center; gap:0.5rem;
+    padding:0.4rem 0.6rem; border-radius:6px; font-size:0.78rem;
+    color:var(--text-mid); cursor:pointer; transition:all 0.15s;
+  }
+  .tool-chip:hover { background:var(--blue-pale); color:var(--blue-deep); }
 
   /* ── MAIN FEED ── */
-  .feed-main {
-    padding: 0;
-    max-width: 700px;
-    width: 100%;
-    margin: 0 auto;
+  main { padding:1.5rem; }
+  .feed-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:1.5rem; padding-bottom:1rem;
+    border-bottom:1px solid var(--border);
   }
-  .feed-tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 56px;
-    background: rgba(10,10,12,0.95);
-    backdrop-filter: blur(20px);
-    z-index: 10;
-  }
+  .feed-tabs { display:flex; gap:0.25rem; }
   .feed-tab {
-    padding: 16px 24px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    text-transform: uppercase;
+    font-size:0.82rem; font-weight:600; padding:0.4rem 1rem;
+    border-radius:20px; border:none; background:none;
+    color:var(--text-light); cursor:pointer; transition:all 0.15s;
   }
-  .feed-tab:hover { color: var(--text); }
-  .feed-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .feed-tab.active {
+    background:var(--blue-deep); color:var(--cream);
+  }
+  .feed-tab:hover:not(.active) { background:var(--brown-sand); color:var(--text-dark); }
 
-  /* ── POST CARD ── */
+  .post-grid { columns:2; gap:1rem; }
   .post-card {
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px;
-    transition: background 0.15s;
-    cursor: pointer;
+    break-inside:avoid; margin-bottom:1rem;
+    background:var(--white); border-radius:12px;
+    border:1px solid var(--border);
+    box-shadow: var(--shadow-brown);
+    overflow:hidden; transition:transform 0.2s, box-shadow 0.2s;
   }
-  .post-card:hover { background: var(--surface); }
-  .post-header {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 14px;
+  .post-card:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(92,61,46,0.18); }
+  .post-img {
+    width:100%; aspect-ratio:1/1; object-fit:cover;
+    background:linear-gradient(135deg,var(--blue-pale),var(--brown-sand));
+    display:block;
   }
+  .post-body { padding:0.75rem 1rem 1rem; }
+  .post-meta { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
   .post-avatar {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 1.5px solid var(--border2);
+    width:28px; height:28px; border-radius:50%;
+    border:2px solid var(--brown-sand);
+    object-fit:cover;
   }
-  .post-meta { flex: 1; }
-  .post-username {
-    font-size: 13px; font-weight: 600;
-    color: var(--text);
+  .post-author { font-size:0.8rem; font-weight:600; color:var(--text-dark); }
+  .post-movement {
+    font-size:0.68rem; font-family:'DM Mono',monospace; letter-spacing:0.04em;
+    padding:0.15rem 0.5rem; border-radius:10px;
+    background:var(--blue-pale); color:var(--blue-deep);
+    margin-left:auto;
   }
-  .post-handle {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-  }
-  .post-time {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-  }
-  .post-tool-badge {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 3px 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--muted);
-  }
-  .post-image-wrap {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--surface2);
-    margin-bottom: 14px;
-  }
-  .post-image {
-    width: 100%;
-    display: block;
-    object-fit: cover;
-    min-height: 200px;
-    max-height: 480px;
-  }
-  .post-movement-pill {
-    position: absolute;
-    top: 12px; left: 12px;
-    background: rgba(10,10,12,0.75);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--text);
-    text-transform: uppercase;
-  }
-  .post-caption {
-    font-size: 13.5px;
-    color: var(--text);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-  .post-tags {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-bottom: 14px;
-  }
-  .post-tag {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--accent3);
-    cursor: pointer;
-  }
-  .post-tag:hover { text-decoration: underline; }
-  .post-actions {
-    display: flex; align-items: center; gap: 20px;
-  }
+  .post-caption { font-size:0.82rem; color:var(--text-mid); line-height:1.4; margin-bottom:0.6rem; }
+  .post-actions { display:flex; gap:1rem; }
   .post-action {
-    display: flex; align-items: center; gap: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: color 0.15s;
-    background: none; border: none;
-    padding: 0;
+    font-size:0.78rem; color:var(--text-light); cursor:pointer;
+    border:none; background:none; transition:color 0.15s; display:flex; align-items:center; gap:0.3rem;
   }
-  .post-action:hover { color: var(--text); }
-  .post-action.liked { color: var(--accent2); }
-  .post-action.saved { color: var(--accent); }
-  .post-action-icon { font-size: 14px; }
+  .post-action:hover { color:var(--blue-mid); }
+  .post-action.liked { color:#e05c5c; }
 
   /* ── RIGHT SIDEBAR ── */
   .sidebar-right {
-    position: sticky; top: 56px;
-    height: calc(100vh - 56px);
-    overflow-y: auto;
-    border-left: 1px solid var(--border);
-    padding: 20px 16px;
-    display: flex; flex-direction: column; gap: 20px;
+    border-left:1px solid var(--border);
+    background: linear-gradient(180deg, var(--white) 0%, var(--blue-pale) 100%);
+    padding:1.5rem 1rem;
+    position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
   }
-  .sidebar-right::-webkit-scrollbar { width: 0; }
-  .widget {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-  }
+  .widget { margin-bottom:1.5rem; }
   .widget-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 14px;
+    font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700;
+    color:var(--blue-deep); margin-bottom:1rem;
+    padding-bottom:0.5rem; border-bottom:2px solid var(--brown-sand);
   }
-  /* Trending tags */
   .trending-tag {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.5rem 0; border-bottom:1px solid var(--border); cursor:pointer;
   }
-  .trending-tag:last-child { border-bottom: none; }
-  .trending-tag-name {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--accent3);
+  .trending-tag:last-child { border-bottom:none; }
+  .trending-tag-name { font-size:0.83rem; font-weight:600; color:var(--text-dark); }
+  .trending-tag-count { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--blue-mid); }
+  .trending-tag:hover .trending-tag-name { color:var(--blue-mid); }
+
+  .creator-row {
+    display:flex; align-items:center; gap:0.75rem;
+    padding:0.5rem 0; border-bottom:1px solid var(--border);
   }
-  .trending-tag-count {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
+  .creator-row:last-child { border-bottom:none; }
+  .creator-avatar {
+    width:36px; height:36px; border-radius:50%;
+    border:2px solid var(--brown-sand); object-fit:cover; flex-shrink:0;
   }
-  /* Suggested users */
-  .suggested-user {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0;
-    cursor: pointer;
-  }
-  .suggested-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid var(--border2);
-    flex-shrink: 0;
-  }
-  .suggested-info { flex: 1; }
-  .suggested-name { font-size: 12px; font-weight: 600; }
-  .suggested-handle { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+  .creator-info { flex:1; }
+  .creator-name { font-size:0.82rem; font-weight:600; color:var(--text-dark); }
+  .creator-sub { font-size:0.72rem; color:var(--text-light); }
   .btn-follow {
-    background: none;
-    border: 1px solid var(--border2);
-    border-radius: 5px;
-    padding: 4px 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
+    font-size:0.72rem; font-weight:600;
+    padding:0.3rem 0.7rem; border-radius:20px;
+    border:1.5px solid var(--blue-mid); color:var(--blue-mid);
+    background:none; cursor:pointer; transition:all 0.15s;
   }
-  .btn-follow:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn-follow:hover { background:var(--blue-mid); color:var(--white); }
+  .btn-follow.following { background:var(--blue-deep); color:var(--white); border-color:var(--blue-deep); }
 
-  /* ── PROFILE PANEL (overlay) ── */
-  .profile-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    z-index: 200;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.2s ease;
+  /* ── MODALS ── */
+  .modal-backdrop {
+    position:fixed; inset:0; background:rgba(28,21,18,0.65);
+    backdrop-filter:blur(4px); z-index:200;
+    display:none; align-items:center; justify-content:center; padding:1rem;
   }
-  .profile-overlay.open { display: flex; justify-content: flex-end; }
-  .profile-panel {
-    width: 380px;
-    height: 100vh;
-    background: var(--bg);
-    border-left: 1px solid var(--border2);
-    overflow-y: auto;
-    animation: slideIn 0.3s cubic-bezier(0.16,1,0.3,1);
-  }
-  .profile-panel::-webkit-scrollbar { width: 0; }
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .profile-cover {
-    width: 100%; height: 140px;
-    object-fit: cover;
-    display: block;
-  }
-  .profile-cover-placeholder {
-    width: 100%; height: 140px;
-    background: linear-gradient(135deg, #1a1a22 0%, #0f1a2e 40%, #1a0f20 100%);
-    position: relative;
-    overflow: hidden;
-  }
-  .profile-cover-placeholder::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent, transparent 20px,
-      rgba(232,255,60,0.03) 20px, rgba(232,255,60,0.03) 21px
-    );
-  }
-  .profile-body { padding: 0 20px 32px; }
-  .profile-avatar-wrap {
-    margin-top: -28px;
-    margin-bottom: 12px;
-    position: relative;
-    width: 64px;
-  }
-  .profile-avatar-main {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    border: 3px solid var(--bg);
-    object-fit: cover;
-    display: block;
-  }
-  .profile-verified {
-    position: absolute; bottom: 0; right: -2px;
-    width: 18px; height: 18px;
-    background: var(--accent);
-    border-radius: 50%;
-    border: 2px solid var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 9px;
-  }
-  .profile-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 2px;
-    color: var(--text);
-    line-height: 1.1;
-  }
-  .profile-handle-row {
-    display: flex; align-items: center; gap: 8px;
-    margin: 4px 0 12px;
-  }
-  .profile-handle {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .profile-badge {
-    background: var(--accent2);
-    color: white;
-    border-radius: 3px;
-    padding: 2px 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-  .profile-bio {
-    font-size: 13px;
-    color: rgba(240,240,240,0.7);
-    line-height: 1.5;
-    margin-bottom: 16px;
-  }
-  .profile-tools {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-bottom: 16px;
-  }
-  .profile-tool-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px 9px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--muted);
-  }
-  .profile-stats {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .profile-stat {
-    padding: 14px 10px;
-    text-align: center;
-    border-right: 1px solid var(--border);
-  }
-  .profile-stat:last-child { border-right: none; }
-  .profile-stat-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 1px;
-    color: var(--accent);
-    display: block;
-  }
-  .profile-stat-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  .profile-actions-row {
-    display: flex; gap: 8px;
-    margin-bottom: 20px;
-  }
-  .btn-edit-profile {
-    flex: 1;
-    background: none;
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 9px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-edit-profile:hover { background: var(--surface2); }
-  .btn-share-profile {
-    background: none;
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 9px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-share-profile:hover { background: var(--surface2); }
-  .profile-section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .profile-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .profile-grid-img {
-    width: 100%; aspect-ratio: 1;
-    object-fit: cover;
-    display: block;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .profile-grid-img:hover { opacity: 0.75; }
-  .profile-movements {
-    display: flex; flex-wrap: wrap; gap: 6px;
-  }
-  .profile-movement-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 12px;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .profile-movement-chip:hover { border-color: var(--accent); color: var(--accent); }
-  .profile-close {
-    position: absolute;
-    top: 14px; right: 14px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 32px; height: 32px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text);
-    transition: all 0.15s;
-    z-index: 10;
-  }
-  .profile-close:hover { background: var(--surface2); }
-  .profile-panel { position: relative; }
-
-  /* ── POST MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    z-index: 300;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
+  .modal-backdrop.open { display:flex; }
   .modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 14px;
-    width: 100%;
-    max-width: 500px;
-    padding: 28px;
-    animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
+    background:var(--white); border-radius:16px;
+    box-shadow:0 24px 80px rgba(26,58,92,0.25), 0 0 0 1px var(--border);
+    width:100%; max-width:480px; max-height:90vh; overflow-y:auto;
+    animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
   }
-  @keyframes scaleIn {
-    from { transform: scale(0.93); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(0.92) translateY(20px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
   }
   .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 22px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.25rem 1.5rem; border-bottom:1px solid var(--border);
+    background:linear-gradient(135deg,var(--blue-deep),var(--blue-mid));
+    border-radius:16px 16px 0 0;
   }
   .modal-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    color: var(--accent);
+    font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700;
+    color:var(--cream);
   }
   .modal-close {
-    background: none; border: none;
-    font-size: 20px; color: var(--muted);
-    cursor: pointer; transition: color 0.15s;
+    width:30px; height:30px; border-radius:50%;
+    background:rgba(255,255,255,0.15); border:none; color:var(--cream);
+    font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s;
   }
-  .modal-close:hover { color: var(--text); }
-  .upload-zone {
-    border: 2px dashed var(--border2);
-    border-radius: 10px;
-    padding: 40px 20px;
-    text-align: center;
-    margin-bottom: 18px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .upload-zone:hover { border-color: var(--accent); }
-  .upload-zone-icon { font-size: 36px; margin-bottom: 8px; }
-  .upload-zone-text { font-size: 13px; color: var(--muted); }
-  .upload-zone-hint { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
-  .modal-field {
-    margin-bottom: 14px;
-  }
-  .modal-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 6px;
-  }
-  .modal-input, .modal-select, .modal-textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .modal-input:focus, .modal-select:focus, .modal-textarea:focus { border-color: var(--accent); }
-  .modal-select option { background: var(--surface); }
-  .modal-textarea { resize: vertical; min-height: 70px; }
-  .prompt-toggle {
-    display: flex; align-items: center; gap: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-  .prompt-toggle input[type="checkbox"] { accent-color: var(--accent); }
-  .btn-publish {
-    width: 100%;
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    border-radius: 8px;
-    padding: 13px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.15s;
-  }
-  .btn-publish:hover { opacity: 0.85; transform: translateY(-1px); }
+  .modal-close:hover { background:rgba(255,255,255,0.25); }
+  .modal-body { padding:1.5rem; }
 
-  /* ── FOOTER TEXT ── */
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 16px 20px 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    line-height: 1.8;
+  /* ── FORM STYLES ── */
+  .form-group { margin-bottom:1.25rem; }
+  .form-label {
+    display:block; font-size:0.78rem; font-weight:600; letter-spacing:0.04em;
+    text-transform:uppercase; color:var(--brown-dark); margin-bottom:0.4rem;
+  }
+  .form-input, .form-select, .form-textarea {
+    width:100%; padding:0.65rem 0.9rem; border-radius:8px;
+    border:1.5px solid var(--brown-sand); background:var(--cream);
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--text-dark);
+    transition:border-color 0.15s, box-shadow 0.15s; outline:none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color:var(--blue-mid); background:var(--white);
+    box-shadow:0 0 0 3px rgba(43,95,142,0.12);
+  }
+  .form-textarea { resize:vertical; min-height:80px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+  /* Avatar upload */
+  .avatar-upload {
+    display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;
+  }
+  .avatar-preview {
+    width:72px; height:72px; border-radius:50%;
+    border:3px solid var(--brown-sand); object-fit:cover;
+    background:var(--brown-parchment); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.8rem; color:var(--text-light);
+    overflow:hidden;
+  }
+  .avatar-upload-btn {
+    flex:1;
+  }
+  .upload-area {
+    border:2px dashed var(--brown-sand); border-radius:10px;
+    padding:1.25rem; text-align:center; cursor:pointer;
+    transition:all 0.2s; background:var(--brown-parchment);
+  }
+  .upload-area:hover { border-color:var(--blue-mid); background:var(--blue-pale); }
+  .upload-icon { font-size:1.5rem; margin-bottom:0.3rem; }
+  .upload-text { font-size:0.78rem; color:var(--text-light); }
+  .upload-text strong { color:var(--blue-mid); }
+
+  /* Steps */
+  .step-indicator {
+    display:flex; align-items:center; gap:0; margin-bottom:1.5rem;
+  }
+  .step {
+    flex:1; text-align:center;
+  }
+  .step-circle {
+    width:28px; height:28px; border-radius:50%; margin:0 auto 0.3rem;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:700;
+    border:2px solid var(--brown-sand); color:var(--text-light);
+    background:var(--white); transition:all 0.3s;
+  }
+  .step.active .step-circle {
+    background:var(--blue-deep); border-color:var(--blue-deep); color:var(--white);
+  }
+  .step.done .step-circle {
+    background:var(--brown-warm); border-color:var(--brown-warm); color:var(--white);
+  }
+  .step-label { font-size:0.65rem; font-weight:600; color:var(--text-light); text-transform:uppercase; letter-spacing:0.06em; }
+  .step.active .step-label { color:var(--blue-deep); }
+  .step.done .step-label { color:var(--brown-warm); }
+  .step-line {
+    flex:0 0 40px; height:2px; background:var(--brown-sand); margin-bottom:22px;
+    transition:background 0.3s;
+  }
+  .step-line.done { background:var(--brown-warm); }
+
+  /* Toggle */
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .toggle-label { font-size:0.84rem; color:var(--text-mid); }
+  .toggle {
+    width:44px; height:24px; border-radius:12px;
+    background:var(--brown-sand); border:none; cursor:pointer;
+    position:relative; transition:background 0.2s;
+  }
+  .toggle::after {
+    content:''; position:absolute; top:3px; left:3px;
+    width:18px; height:18px; border-radius:50%; background:var(--white);
+    transition:transform 0.2s;
+  }
+  .toggle.on { background:var(--blue-mid); }
+  .toggle.on::after { transform:translateX(20px); }
+
+  /* Submit btn */
+  .btn-submit {
+    width:100%; padding:0.85rem; border-radius:10px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; letter-spacing:0.02em;
+    background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 50%,var(--brown-warm) 100%);
+    color:var(--white); box-shadow:0 4px 20px rgba(26,58,92,0.3);
+    transition:all 0.2s; margin-top:0.5rem;
+  }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(26,58,92,0.4); }
+  .btn-submit:active { transform:translateY(0); }
+  .btn-secondary {
+    flex:1; padding:0.75rem; border-radius:10px;
+    border:1.5px solid var(--border); background:var(--white);
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text-mid);
+    cursor:pointer; transition:all 0.15s;
+  }
+  .btn-secondary:hover { background:var(--brown-parchment); border-color:var(--brown-warm); }
+  .btn-group { display:flex; gap:0.75rem; margin-top:0.75rem; }
+
+  /* Success */
+  .success-screen {
+    text-align:center; padding:2rem 1rem;
+  }
+  .success-icon {
+    width:72px; height:72px; border-radius:50%; margin:0 auto 1rem;
+    background:linear-gradient(135deg,var(--blue-deep),var(--brown-warm));
+    display:flex; align-items:center; justify-content:center; font-size:2rem;
+  }
+  .success-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-bottom:0.5rem; }
+  .success-sub { font-size:0.88rem; color:var(--text-light); line-height:1.5; }
+
+  /* Texture strip */
+  .texture-strip {
+    height:4px;
+    background:linear-gradient(90deg,var(--blue-deep),var(--blue-mid),var(--brown-warm),var(--brown-mid),var(--blue-mid),var(--blue-deep));
   }
 
-  @media (max-width: 1100px) {
-    .sidebar-right { display: none; }
-    .layout { grid-template-columns: var(--sidebar-w) 1fr; }
+  /* Chip select */
+  .chip-group { display:flex; flex-wrap:wrap; gap:0.5rem; }
+  .chip {
+    font-size:0.75rem; font-weight:500; padding:0.35rem 0.75rem;
+    border-radius:20px; border:1.5px solid var(--brown-sand);
+    background:var(--white); color:var(--text-mid); cursor:pointer; transition:all 0.15s;
   }
-  @media (max-width: 700px) {
-    .sidebar-left { display: none; }
-    .layout { grid-template-columns: 1fr; }
+  .chip:hover { border-color:var(--blue-mid); color:var(--blue-mid); }
+  .chip.selected { background:var(--blue-deep); border-color:var(--blue-deep); color:var(--white); }
+
+  /* Post modal */
+  .post-modal { max-width:520px; }
+  .drop-zone {
+    border:2px dashed var(--brown-sand); border-radius:12px;
+    padding:2rem; text-align:center; cursor:pointer; transition:all 0.2s;
+    background:var(--brown-parchment); margin-bottom:1rem; position:relative;
   }
+  .drop-zone:hover, .drop-zone.dragging { border-color:var(--blue-mid); background:var(--blue-pale); }
+  .drop-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .drop-icon { font-size:2.5rem; margin-bottom:0.5rem; }
+  .drop-text { font-size:0.82rem; color:var(--text-light); }
+  .drop-text strong { color:var(--blue-mid); }
+  .img-preview-wrap { position:relative; }
+  .img-preview {
+    width:100%; max-height:200px; object-fit:cover;
+    border-radius:10px; display:none; margin-bottom:1rem;
+  }
+  .img-preview.show { display:block; }
+  .img-remove {
+    position:absolute; top:6px; right:6px;
+    background:rgba(28,21,18,0.7); color:var(--white); border:none;
+    border-radius:50%; width:24px; height:24px; font-size:0.8rem; cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+  }
+  .img-remove.show { display:flex; }
+
+  /* Profile card */
+  .profile-card {
+    background:linear-gradient(135deg,var(--blue-deep),var(--blue-mid));
+    border-radius:12px; padding:1.25rem; text-align:center; margin-bottom:1.5rem; color:var(--white);
+  }
+  .profile-card-avatar {
+    width:60px; height:60px; border-radius:50%; margin:0 auto 0.75rem;
+    border:3px solid var(--brown-warm); object-fit:cover;
+    background:var(--brown-parchment); display:flex; align-items:center; justify-content:center; font-size:1.5rem; overflow:hidden;
+  }
+  .profile-card-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; margin-bottom:0.25rem; }
+  .profile-card-handle { font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(248,244,238,0.7); margin-bottom:0.5rem; }
+  .profile-card-bio { font-size:0.78rem; color:rgba(248,244,238,0.85); line-height:1.4; }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(100px);
+    background:var(--blue-deep); color:var(--cream); padding:0.7rem 1.5rem;
+    border-radius:30px; font-size:0.85rem; font-weight:600; z-index:500;
+    box-shadow:0 8px 24px rgba(26,58,92,0.3); transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    border:1px solid var(--brown-warm);
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* Responsive */
+  @media(max-width:900px){
+    .layout { grid-template-columns:1fr; }
+    .sidebar-left, .sidebar-right { display:none; }
+    .post-grid { columns:1; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--brown-parchment); }
+  ::-webkit-scrollbar-thumb { background:var(--brown-mid); border-radius:10px; }
+
+  /* Hidden utility */
+  .hidden { display:none !important; }
 </style>
 </head>
 <body>
 
-<!-- ── TOPBAR ── -->
-<nav class="topbar">
-  <a class="topbar-logo" href="#">UNREAL.</a>
-  <input class="topbar-search" type="text" placeholder="Search creators, movements, prompts…">
-  <div class="topbar-spacer"></div>
-  <div class="topbar-actions">
-    <button class="btn-post" onclick="openModal()">+ POST</button>
-    <img class="topbar-avatar"
-      src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e"
-      alt="Profile"
-      onclick="openProfile()"
-      onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=34'"
-    >
+<div class="texture-strip"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">UN<span>REAL</span> <small style="font-size:0.5rem;letter-spacing:0.2em;opacity:0.5">BETA</small></a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="setFeedTab(this,'foryou')">For You</button>
+    <button class="nav-tab" onclick="setFeedTab(this,'following')">Following</button>
+    <button class="nav-tab" onclick="setFeedTab(this,'featured')">Featured</button>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-nav btn-outline" onclick="openModal('profileModal')">Create Profile</button>
+    <button class="btn-nav btn-primary" onclick="openModal('postModal')">+ New Post</button>
   </div>
 </nav>
 
-<!-- ── LAYOUT ── -->
+<!-- LAYOUT -->
 <div class="layout">
 
   <!-- LEFT SIDEBAR -->
   <aside class="sidebar-left">
-    <span class="nav-section-label">Navigate</span>
-    <a class="nav-item active" href="#">
-      <span class="nav-icon">◈</span> Feed
-    </a>
-    <a class="nav-item" href="#">
-      <span class="nav-icon">◎</span> Explore
-    </a>
-    <a class="nav-item" href="#">
-      <span class="nav-icon">★</span> Featured
-    </a>
-    <a class="nav-item" href="#">
-      <span class="nav-icon">⊕</span> Following
-    </a>
-    <a class="nav-item" href="#">
-      <span class="nav-icon">◻</span> Saved
-    </a>
-
-    <hr class="sidebar-divider">
-    <span class="nav-section-label">Movements</span>
-
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#3caaff"></span> Nusantara AI
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#e8ff3c"></span> Brutalist AI
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#ff3c6e"></span> Horror Render
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#c77dff"></span> Architecture AI
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#ff9b3c"></span> Afrofuturism
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#ff6ecf"></span> Dreamcore
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#3cffb4"></span> Glitch Realism
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#ffdc3c"></span> Solarpunk
-    </a>
-    <a class="nav-item" href="#">
-      <span class="movement-dot" style="background:#ff8c3c"></span> Dark Fantasy
-    </a>
-
-    <hr class="sidebar-divider">
-    <span class="nav-section-label">Tools</span>
-    <a class="nav-item" href="#">Midjourney</a>
-    <a class="nav-item" href="#">Flux</a>
-    <a class="nav-item" href="#">DALL·E</a>
-    <a class="nav-item" href="#">Firefly</a>
-    <a class="nav-item" href="#">Stable Diffusion</a>
-    <a class="nav-item" href="#">Ideogram</a>
-
-    <div class="sidebar-footer">
-      About · Terms · Privacy<br>
-      © 2026 UNREAL
+    <div class="sidebar-section">
+      <div class="sidebar-label">Discover</div>
+      <button class="sidebar-item active" onclick="setSidebarActive(this)"><span class="dot"></span>Feed</button>
+      <button class="sidebar-item" onclick="setSidebarActive(this)"><span class="dot"></span>Explore</button>
+      <button class="sidebar-item" onclick="setSidebarActive(this)"><span class="dot"></span>Featured</button>
+      <button class="sidebar-item" onclick="setSidebarActive(this)"><span class="dot"></span>Following</button>
+      <button class="sidebar-item" onclick="setSidebarActive(this)"><span class="dot"></span>Saved</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Movements</div>
+      <div style="padding:0 0.25rem;">
+        <span class="movement-tag">Nusantara AI</span>
+        <span class="movement-tag">Brutalist AI</span>
+        <span class="movement-tag">Horror Render</span>
+        <span class="movement-tag">Architecture AI</span>
+        <span class="movement-tag">Afrofuturism</span>
+        <span class="movement-tag">Dreamcore</span>
+        <span class="movement-tag">Glitch Realism</span>
+        <span class="movement-tag">Cyber Baroque</span>
+        <span class="movement-tag">Bio Surreal</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Tools</div>
+      <div class="tool-chip">🎨 Midjourney</div>
+      <div class="tool-chip">⚡ Flux</div>
+      <div class="tool-chip">🤖 DALL·E</div>
+      <div class="tool-chip">🔥 Firefly</div>
+      <div class="tool-chip">🌀 Stable Diffusion</div>
+    </div>
+    <div style="padding:0.75rem; border-radius:10px; background:linear-gradient(135deg,var(--blue-pale),var(--brown-parchment)); border:1px solid var(--border);">
+      <div style="font-size:0.75rem; font-weight:600; color:var(--blue-deep); margin-bottom:0.25rem;">About · Terms · Privacy</div>
+      <div style="font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--text-light);">© 2026 UNREAL</div>
     </div>
   </aside>
 
-  <!-- MAIN FEED -->
-  <main class="feed-main">
-    <div class="feed-tabs">
-      <span class="feed-tab active">For You</span>
-      <span class="feed-tab">Following</span>
-      <span class="feed-tab">Movements</span>
-      <span class="feed-tab">Featured</span>
+  <!-- MAIN -->
+  <main>
+    <div class="feed-header">
+      <div class="feed-tabs">
+        <button class="feed-tab active" onclick="setFeedSubtab(this)">NZ</button>
+        <button class="feed-tab" onclick="setFeedSubtab(this)">All</button>
+        <button class="feed-tab" onclick="setFeedSubtab(this)">Nusantara AI</button>
+        <button class="feed-tab" onclick="setFeedSubtab(this)">Brutalist AI</button>
+        <button class="feed-tab" onclick="setFeedSubtab(this)">Horror Render</button>
+      </div>
+      <div style="font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--text-light);">2,400+ posts</div>
     </div>
 
-    <!-- POST 1 -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/lorelei/svg?seed=arinaSato&backgroundColor=1a1a2e&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=AS&background=2a1a3e&color=c77dff&size=38'"
-          alt="Arina Sato">
-        <div class="post-meta">
-          <div class="post-username">Arina Sato</div>
-          <div class="post-handle">@arina.renders</div>
-        </div>
-        <span class="post-time">2h ago</span>
-        <span class="post-tool-badge">MIDJOURNEY</span>
-      </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/unreal1/700/420"
-          onerror="this.style.background='linear-gradient(135deg,#1a0f2e,#0f1a2e)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Nusantara AI</span>
-      </div>
-      <p class="post-caption">Lost in the forests of an alternate Nusantara — where old kingdoms never fell. Every shadow here has a name.</p>
-      <div class="post-tags">
-        <span class="post-tag">#NusantaraAI</span>
-        <span class="post-tag">#FantasyWorld</span>
-        <span class="post-tag">#Midjourney</span>
-        <span class="post-tag">#AIArt</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action liked">
-          <span class="post-action-icon">♥</span> 1.2k
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 84
-        </button>
-        <button class="post-action saved">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
+    <div class="post-grid" id="postGrid">
 
-    <!-- POST 2 -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/micah/svg?seed=zaynCraft&backgroundColor=0f1a2e&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=ZC&background=0f1a2e&color=3caaff&size=38'"
-          alt="Zayn Craft">
-        <div class="post-meta">
-          <div class="post-username">Zayn Craft</div>
-          <div class="post-handle">@zayn.craft</div>
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" alt="">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=11" alt="">
+            <span class="post-author">Aisha.renders</span>
+            <span class="post-movement">Nusantara AI</span>
+          </div>
+          <div class="post-caption">Kota Kinabalu in the year 2140 — overgrown with bioluminescent roots</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 284</button>
+            <button class="post-action">💬 42</button>
+            <button class="post-action">↗ Share</button>
+          </div>
         </div>
-        <span class="post-time">5h ago</span>
-        <span class="post-tool-badge">FLUX</span>
       </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/brutalist88/700/500"
-          onerror="this.style.background='linear-gradient(135deg,#1a1a0f,#0f2e1a)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Brutalist AI</span>
-      </div>
-      <p class="post-caption">Brutalist utopia series — concrete dreams and steel skies. Prompt took 47 iterations to get this right.</p>
-      <div class="post-tags">
-        <span class="post-tag">#BrutalistAI</span>
-        <span class="post-tag">#Architecture</span>
-        <span class="post-tag">#Flux</span>
-        <span class="post-tag">#UrbanAI</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action">
-          <span class="post-action-icon">♥</span> 867
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 51
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
 
-    <!-- POST 3 -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/notionists/svg?seed=maeveOkonkwo&backgroundColor=2e1a0f&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=MO&background=2e1a0f&color=ff9b3c&size=38'"
-          alt="Maeve Okonkwo">
-        <div class="post-meta">
-          <div class="post-username">Maeve Okonkwo</div>
-          <div class="post-handle">@maeve.visions</div>
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="" style="aspect-ratio:4/5">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=32" alt="">
+            <span class="post-author">flux.void</span>
+            <span class="post-movement">Dreamcore</span>
+          </div>
+          <div class="post-caption">The corridor between sleep and not-sleep</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 511</button>
+            <button class="post-action">💬 87</button>
+            <button class="post-action">↗ Share</button>
+          </div>
         </div>
-        <span class="post-time">7h ago</span>
-        <span class="post-tool-badge">DALL·E 3</span>
       </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/afrofuture7/700/460"
-          onerror="this.style.background='linear-gradient(135deg,#2e1a0f,#3d0f1a)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Afrofuturism</span>
-      </div>
-      <p class="post-caption">Ancestors as gods. The future remembers where it came from. New series dropping this week — follow to see all 12 pieces.</p>
-      <div class="post-tags">
-        <span class="post-tag">#Afrofuturism</span>
-        <span class="post-tag">#DALLe3</span>
-        <span class="post-tag">#DigitalArt</span>
-        <span class="post-tag">#SeriesWork</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action liked">
-          <span class="post-action-icon">♥</span> 3.4k
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 210
-        </button>
-        <button class="post-action saved">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
 
-    <!-- POST 4 -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/adventurer/svg?seed=rioTakeda&backgroundColor=0f2e2a&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=RT&background=0f2e2a&color=3cffb4&size=38'"
-          alt="Rio Takeda">
-        <div class="post-meta">
-          <div class="post-username">Rio Takeda</div>
-          <div class="post-handle">@rio.glitch</div>
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1539604735-f3b2b9a0d7e6?w=400&q=80" alt="">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=47" alt="">
+            <span class="post-author">nusantaraink</span>
+            <span class="post-movement">Horror Render</span>
+          </div>
+          <div class="post-caption">What waits beneath Gunung Padang — hyperrealistic void entity</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 733</button>
+            <button class="post-action">💬 129</button>
+            <button class="post-action">↗ Share</button>
+          </div>
         </div>
-        <span class="post-time">11h ago</span>
-        <span class="post-tool-badge">STABLE DIFFUSION</span>
       </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/glitch99/700/440"
-          onerror="this.style.background='linear-gradient(135deg,#0f2e2a,#0f0f2e)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Glitch Realism</span>
-      </div>
-      <p class="post-caption">Data corruption as poetry — what if the glitch is actually the truest image? Custom LoRA trained on 80s VHS noise + photorealistic faces.</p>
-      <div class="post-tags">
-        <span class="post-tag">#GlitchArt</span>
-        <span class="post-tag">#LoRA</span>
-        <span class="post-tag">#StableDiffusion</span>
-        <span class="post-tag">#GlitchRealism</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action">
-          <span class="post-action-icon">♥</span> 521
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 33
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
 
-    <!-- POST 5 -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=syriaHall&backgroundColor=2e0f1a&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=SH&background=2e0f1a&color=ff3c6e&size=38'"
-          alt="Syria Hall">
-        <div class="post-meta">
-          <div class="post-username">Syria Hall</div>
-          <div class="post-handle">@syria.hal</div>
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80" alt="" style="aspect-ratio:3/4">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=58" alt="">
+            <span class="post-author">geometria.ai</span>
+            <span class="post-movement">Architecture AI</span>
+          </div>
+          <div class="post-caption">Bangkok tower — brutalist shell, organic interior, year 2089</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 412</button>
+            <button class="post-action">💬 55</button>
+            <button class="post-action">↗ Share</button>
+          </div>
         </div>
-        <span class="post-time">1d ago</span>
-        <span class="post-tool-badge">FIREFLY</span>
       </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/horrorrender22/700/430"
-          onerror="this.style.background='linear-gradient(135deg,#2e0f1a,#1a0f0f)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Horror Render</span>
-      </div>
-      <p class="post-caption">She's been standing in that field for 40 years. Nobody knows why. Nobody dares to ask. — Horror Render series №6.</p>
-      <div class="post-tags">
-        <span class="post-tag">#HorrorRender</span>
-        <span class="post-tag">#AdobeFirefly</span>
-        <span class="post-tag">#AIHorror</span>
-        <span class="post-tag">#DarkAI</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action liked">
-          <span class="post-action-icon">♥</span> 2.1k
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 147
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
 
-    <!-- POST 6 — NZ/JUZZTHIN -->
-    <article class="post-card">
-      <div class="post-header">
-        <img class="post-avatar"
-          src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e&radius=50"
-          onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=38'"
-          alt="NZ">
-        <div class="post-meta">
-          <div class="post-username">NZ</div>
-          <div class="post-handle">@juzzthin</div>
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80" alt="">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=15" alt="">
+            <span class="post-author">glitch.matrix</span>
+            <span class="post-movement">Glitch Realism</span>
+          </div>
+          <div class="post-caption">Signal degradation — portrait of a memory that never happened</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 198</button>
+            <button class="post-action">💬 31</button>
+            <button class="post-action">↗ Share</button>
+          </div>
         </div>
-        <span class="post-time">2d ago</span>
-        <span class="post-tool-badge">MIDJOURNEY</span>
       </div>
-      <div class="post-image-wrap">
-        <img class="post-image"
-          src="https://picsum.photos/seed/nusantaraKL55/700/450"
-          onerror="this.style.background='linear-gradient(135deg,#0a0a1a,#1a1a0f)'; this.style.height='300px'"
-          alt="AI artwork">
-        <span class="post-movement-pill">Nusantara AI</span>
-      </div>
-      <p class="post-caption">KL 3047. The towers remember the kampung. The jungle grew back. Minangkabau geometry in every skyline. This one hit different.</p>
-      <div class="post-tags">
-        <span class="post-tag">#NusantaraAI</span>
-        <span class="post-tag">#KL</span>
-        <span class="post-tag">#Minangkabau</span>
-        <span class="post-tag">#Futurism</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action liked">
-          <span class="post-action-icon">♥</span> 4.8k
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">◎</span> 312
-        </button>
-        <button class="post-action saved">
-          <span class="post-action-icon">◻</span> Save
-        </button>
-        <button class="post-action">
-          <span class="post-action-icon">↗</span> Share
-        </button>
-      </div>
-    </article>
 
+      <div class="post-card">
+        <img class="post-img" src="https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=400&q=80" alt="" style="aspect-ratio:1/1.2">
+        <div class="post-body">
+          <div class="post-meta">
+            <img class="post-avatar" src="https://i.pravatar.cc/80?img=22" alt="">
+            <span class="post-author">afrofuture.kl</span>
+            <span class="post-movement">Afrofuturism</span>
+          </div>
+          <div class="post-caption">Diaspora light — KL Afrofuturist portrait series vol.3</div>
+          <div class="post-actions">
+            <button class="post-action" onclick="toggleLike(this)">♡ 644</button>
+            <button class="post-action">💬 77</button>
+            <button class="post-action">↗ Share</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </main>
 
   <!-- RIGHT SIDEBAR -->
   <aside class="sidebar-right">
 
-    <!-- Suggested Creators -->
-    <div class="widget">
-      <div class="widget-title">Suggested Creators</div>
-
-      <div class="suggested-user">
-        <img class="suggested-avatar"
-          src="https://api.dicebear.com/7.x/bottts/svg?seed=lena77&backgroundColor=1a1a2e"
-          onerror="this.src='https://ui-avatars.com/api/?name=LK&background=1a1a2e&color=3caaff&size=34'"
-          alt="Lena K">
-        <div class="suggested-info">
-          <div class="suggested-name">Lena K</div>
-          <div class="suggested-handle">@dreamcore.lena</div>
-        </div>
-        <button class="btn-follow">Follow</button>
-      </div>
-
-      <div class="suggested-user">
-        <img class="suggested-avatar"
-          src="https://api.dicebear.com/7.x/pixel-art/svg?seed=omarFlux&backgroundColor=0f2e1a"
-          onerror="this.src='https://ui-avatars.com/api/?name=OF&background=0f2e1a&color=3cffb4&size=34'"
-          alt="Omar F">
-        <div class="suggested-info">
-          <div class="suggested-name">Omar F</div>
-          <div class="suggested-handle">@flux.omar</div>
-        </div>
-        <button class="btn-follow">Follow</button>
-      </div>
-
-      <div class="suggested-user">
-        <img class="suggested-avatar"
-          src="https://api.dicebear.com/7.x/shapes/svg?seed=yunaVis&backgroundColor=2e0f2e"
-          onerror="this.src='https://ui-avatars.com/api/?name=YV&background=2e0f2e&color=c77dff&size=34'"
-          alt="Yuna V">
-        <div class="suggested-info">
-          <div class="suggested-name">Yuna V</div>
-          <div class="suggested-handle">@yuna.visions</div>
-        </div>
-        <button class="btn-follow">Follow</button>
-      </div>
-
-      <div class="suggested-user">
-        <img class="suggested-avatar"
-          src="https://api.dicebear.com/7.x/thumbs/svg?seed=carlosDark&backgroundColor=2e1a0f"
-          onerror="this.src='https://ui-avatars.com/api/?name=CD&background=2e1a0f&color=ff9b3c&size=34'"
-          alt="Carlos D">
-        <div class="suggested-info">
-          <div class="suggested-name">Carlos D</div>
-          <div class="suggested-handle">@carlos.darkfx</div>
-        </div>
-        <button class="btn-follow">Follow</button>
-      </div>
-
-      <div class="suggested-user">
-        <img class="suggested-avatar"
-          src="https://api.dicebear.com/7.x/identicon/svg?seed=priyaMJ&backgroundColor=1a2e0f"
-          onerror="this.src='https://ui-avatars.com/api/?name=PM&background=1a2e0f&color=e8ff3c&size=34'"
-          alt="Priya M">
-        <div class="suggested-info">
-          <div class="suggested-name">Priya M</div>
-          <div class="suggested-handle">@priya.mj</div>
-        </div>
-        <button class="btn-follow">Follow</button>
+    <div class="widget" id="profileWidget" style="display:none;">
+      <div class="profile-card">
+        <div class="profile-card-avatar" id="navAvatarPreview">👤</div>
+        <div class="profile-card-name" id="navProfileName">—</div>
+        <div class="profile-card-handle" id="navProfileHandle">@—</div>
+        <div class="profile-card-bio" id="navProfileBio"></div>
       </div>
     </div>
 
-    <!-- Trending Tags -->
     <div class="widget">
       <div class="widget-title">Trending Tags</div>
-      <div class="trending-tag"><span class="trending-tag-name">#NusantaraAI</span><span class="trending-tag-count">4.2k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#HorrorRender</span><span class="trending-tag-count">3.1k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#Afrofuturism</span><span class="trending-tag-count">2.8k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#GlitchRealism</span><span class="trending-tag-count">1.9k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#BrutalistAI</span><span class="trending-tag-count">1.4k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#Dreamcore</span><span class="trending-tag-count">1.1k posts</span></div>
-      <div class="trending-tag"><span class="trending-tag-name">#Solarpunk</span><span class="trending-tag-count">980 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#NusantaraAI</span><span class="trending-tag-count">2.4k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#MidjourneyV7</span><span class="trending-tag-count">1.8k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#HorrorRender</span><span class="trending-tag-count">1.2k posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#DreamcoreAI</span><span class="trending-tag-count">980 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#GlitchArt</span><span class="trending-tag-count">754 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag-name">#AIArchitecture</span><span class="trending-tag-count">621 posts</span></div>
     </div>
 
-    <!-- Active Movements -->
     <div class="widget">
-      <div class="widget-title">Active Movements</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="width:8px;height:8px;border-radius:50%;background:#3caaff;flex-shrink:0"></span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:600">Nusantara AI</div>
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">612 active today</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="width:8px;height:8px;border-radius:50%;background:#ff3c6e;flex-shrink:0"></span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:600">Horror Render</div>
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">448 active today</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="width:8px;height:8px;border-radius:50%;background:#ff9b3c;flex-shrink:0"></span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:600">Afrofuturism</div>
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">387 active today</div>
-          </div>
-        </div>
+      <div class="widget-title">Movements</div>
+      <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=280&q=80" style="width:100%;border-radius:8px;margin-bottom:0.4rem;display:block;" alt="Nusantara AI">
+      <div style="font-size:0.78rem;font-weight:600;color:var(--text-dark);margin-bottom:0.75rem;">Nusantara AI</div>
+      <img src="https://images.unsplash.com/photo-1539604735-f3b2b9a0d7e6?w=280&q=80" style="width:100%;border-radius:8px;margin-bottom:0.4rem;display:block;" alt="Horror Render">
+      <div style="font-size:0.78rem;font-weight:600;color:var(--text-dark);margin-bottom:0.75rem;">Horror Render</div>
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=280&q=80" style="width:100%;border-radius:8px;margin-bottom:0.4rem;display:block;" alt="Dreamcore">
+      <div style="font-size:0.78rem;font-weight:600;color:var(--text-dark);">Dreamcore</div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-title">Suggested Creators</div>
+      <div class="creator-row">
+        <img class="creator-avatar" src="https://i.pravatar.cc/80?img=11" alt="">
+        <div class="creator-info"><div class="creator-name">Aisha.renders</div><div class="creator-sub">Afrofuturism · KL</div></div>
+        <button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
+      </div>
+      <div class="creator-row">
+        <img class="creator-avatar" src="https://i.pravatar.cc/80?img=32" alt="">
+        <div class="creator-info"><div class="creator-name">flux.void</div><div class="creator-sub">Glitch Realism · SG</div></div>
+        <button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
+      </div>
+      <div class="creator-row">
+        <img class="creator-avatar" src="https://i.pravatar.cc/80?img=47" alt="">
+        <div class="creator-info"><div class="creator-name">nusantaraink</div><div class="creator-sub">Nusantara AI · JKT</div></div>
+        <button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
+      </div>
+      <div class="creator-row">
+        <img class="creator-avatar" src="https://i.pravatar.cc/80?img=58" alt="">
+        <div class="creator-info"><div class="creator-name">geometria.ai</div><div class="creator-sub">Architecture AI · BKK</div></div>
+        <button class="btn-follow" onclick="toggleFollow(this)">Follow</button>
       </div>
     </div>
 
   </aside>
 </div>
 
-<!-- ── PROFILE PANEL ── -->
-<div class="profile-overlay" id="profileOverlay" onclick="handleOverlayClick(event)">
-  <div class="profile-panel" id="profilePanel">
-    <button class="profile-close" onclick="closeProfile()">✕</button>
-
-    <!-- Cover -->
-    <div class="profile-cover-placeholder"></div>
-
-    <!-- Body -->
-    <div class="profile-body">
-      <div class="profile-avatar-wrap">
-        <img class="profile-avatar-main"
-          src="https://api.dicebear.com/7.x/personas/svg?seed=juzzthin&backgroundColor=1a1a2e"
-          onerror="this.src='https://ui-avatars.com/api/?name=NZ&background=1a1a2e&color=e8ff3c&size=64'"
-          alt="NZ">
-        <div class="profile-verified">✓</div>
-      </div>
-
-      <div class="profile-name">NZ</div>
-      <div class="profile-handle-row">
-        <span class="profile-handle">@juzzthin</span>
-        <span class="profile-badge">CREATOR</span>
-      </div>
-
-      <p class="profile-bio">
-        Rapper · Filmmaker · Builder. Managing Director @ F12 Records. Making AI art from KL — Nusantara worlds that haven't been rendered yet.
-      </p>
-
-      <div class="profile-tools">
-        <span class="profile-tool-chip">MIDJOURNEY</span>
-        <span class="profile-tool-chip">FLUX</span>
-        <span class="profile-tool-chip">DALL·E 3</span>
-        <span class="profile-tool-chip">FIREFLY</span>
-      </div>
-
-      <div class="profile-stats">
-        <div class="profile-stat">
-          <span class="profile-stat-val">247</span>
-          <span class="profile-stat-label">Posts</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat-val">18.4k</span>
-          <span class="profile-stat-label">Followers</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat-val">312</span>
-          <span class="profile-stat-label">Following</span>
-        </div>
-      </div>
-
-      <div class="profile-actions-row">
-        <button class="btn-edit-profile">Edit Profile</button>
-        <button class="btn-share-profile">↗</button>
-      </div>
-
-      <!-- My Posts grid -->
-      <div class="profile-section-label">My Posts</div>
-      <div class="profile-grid">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/nusantaraKL55/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post2juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post3juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post4juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post5juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post6juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post7juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post8juz/200/200" onerror="this.style.background='#18181d'" alt="">
-        <img class="profile-grid-img" src="https://picsum.photos/seed/post9juz/200/200" onerror="this.style.background='#18181d'" alt="">
-      </div>
-
-      <!-- Movements -->
-      <div class="profile-section-label">My Movements</div>
-      <div class="profile-movements">
-        <span class="profile-movement-chip">Nusantara AI</span>
-        <span class="profile-movement-chip">Horror Render</span>
-        <span class="profile-movement-chip">Dreamcore</span>
-        <span class="profile-movement-chip">Glitch Realism</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── POST MODAL ── -->
-<div class="modal-overlay" id="postModal" onclick="handleModalClick(event)">
-  <div class="modal" id="modalBox">
+<!-- ═══════════════════════════
+     CREATE PROFILE MODAL
+═══════════════════════════ -->
+<div class="modal-backdrop" id="profileModal">
+  <div class="modal" style="max-width:500px;">
     <div class="modal-header">
-      <span class="modal-title">NEW POST</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title" id="profileModalTitle">Create Your Profile</div>
+      <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
     </div>
-    <div class="upload-zone">
-      <div class="upload-zone-icon">◻</div>
-      <div class="upload-zone-text">Drop your AI art here</div>
-      <div class="upload-zone-hint">JPG · PNG · WEBP · up to 20MB</div>
+    <div class="modal-body">
+
+      <!-- Step Indicator -->
+      <div class="step-indicator" id="stepIndicator">
+        <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">Identity</div></div>
+        <div class="step-line" id="line12"></div>
+        <div class="step active" id="step2" style="opacity:0.4"><div class="step-circle">2</div><div class="step-label">Style</div></div>
+        <div class="step-line" id="line23"></div>
+        <div class="step" id="step3" style="opacity:0.4"><div class="step-circle">3</div><div class="step-label">Done</div></div>
+      </div>
+
+      <!-- STEP 1: Identity -->
+      <div id="profileStep1">
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatarPreviewEl">👤</div>
+          <div class="avatar-upload-btn">
+            <div class="upload-area" onclick="document.getElementById('avatarInput').click()">
+              <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text"><strong>Upload photo</strong> or tap to browse<br><span style="font-size:0.7rem;">JPG · PNG · up to 5MB</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <input class="form-input" id="pDisplayName" placeholder="e.g. Juzzthin" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Handle</label>
+            <input class="form-input" id="pHandle" placeholder="@yourname" maxlength="20" oninput="formatHandle(this)">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Bio</label>
+          <textarea class="form-textarea" id="pBio" placeholder="AI art enthusiast · Nusantara vibes · KL based" maxlength="160" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City / Region</label>
+            <input class="form-input" id="pCity" placeholder="e.g. Kuala Lumpur">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Website (optional)</label>
+            <input class="form-input" id="pWebsite" placeholder="yoursite.com">
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="goToStep2()">Continue →</button>
+      </div>
+
+      <!-- STEP 2: Style & Preferences -->
+      <div id="profileStep2" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Your AI Tool of Choice</label>
+          <div class="chip-group" id="toolChips">
+            <span class="chip" onclick="toggleChip(this)">Midjourney</span>
+            <span class="chip" onclick="toggleChip(this)">Flux</span>
+            <span class="chip" onclick="toggleChip(this)">DALL·E 3</span>
+            <span class="chip" onclick="toggleChip(this)">Stable Diffusion</span>
+            <span class="chip" onclick="toggleChip(this)">Adobe Firefly</span>
+            <span class="chip" onclick="toggleChip(this)">Runway</span>
+            <span class="chip" onclick="toggleChip(this)">Ideogram</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Your Movements</label>
+          <div class="chip-group" id="movementChips">
+            <span class="chip" onclick="toggleChip(this)">Nusantara AI</span>
+            <span class="chip" onclick="toggleChip(this)">Brutalist AI</span>
+            <span class="chip" onclick="toggleChip(this)">Horror Render</span>
+            <span class="chip" onclick="toggleChip(this)">Architecture AI</span>
+            <span class="chip" onclick="toggleChip(this)">Afrofuturism</span>
+            <span class="chip" onclick="toggleChip(this)">Dreamcore</span>
+            <span class="chip" onclick="toggleChip(this)">Glitch Realism</span>
+            <span class="chip" onclick="toggleChip(this)">Cyber Baroque</span>
+            <span class="chip" onclick="toggleChip(this)">Bio Surreal</span>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">🔒 Keep prompts private by default</span>
+          <button class="toggle on" id="privacyToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">📧 Weekly digest emails</span>
+          <button class="toggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">✨ Show in Suggested Creators</span>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="goToStep1()">← Back</button>
+          <button class="btn-submit" style="flex:2;" onclick="submitProfile()">Create Profile ✓</button>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="profileSuccess" class="hidden success-screen">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Profile Created!</div>
+        <div class="success-sub" id="successMsg">Welcome to UNREAL. Your creative identity is live.</div>
+        <button class="btn-submit" style="margin-top:1.5rem;" onclick="closeModal('profileModal')">Start Exploring →</button>
+      </div>
+
     </div>
-    <div class="modal-field">
-      <label class="modal-label">Caption</label>
-      <textarea class="modal-textarea" placeholder="Describe your piece…"></textarea>
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">AI Tool Used</label>
-      <select class="modal-select">
-        <option value="">Select tool…</option>
-        <option>Midjourney</option>
-        <option>Flux</option>
-        <option>DALL·E 3</option>
-        <option>Stable Diffusion</option>
-        <option>Adobe Firefly</option>
-        <option>Runway</option>
-        <option>Ideogram</option>
-        <option>Other</option>
-      </select>
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">Movement / Tag</label>
-      <input class="modal-input" type="text" placeholder="e.g. Nusantara AI, Horror Render…">
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">Prompt (optional)</label>
-      <textarea class="modal-textarea" placeholder="Share your prompt with the community…" style="min-height:56px"></textarea>
-    </div>
-    <label class="prompt-toggle">
-      <input type="checkbox" checked>
-      Share prompt publicly — community can see &amp; copy
-    </label>
-    <button class="btn-publish">Publish to UNREAL</button>
   </div>
 </div>
+
+<!-- ═══════════════════════════
+     NEW POST MODAL
+═══════════════════════════ -->
+<div class="modal-backdrop" id="postModal">
+  <div class="modal post-modal">
+    <div class="modal-header">
+      <div class="modal-title">New Post</div>
+      <button class="modal-close" onclick="closeModal('postModal')">✕</button>
+    </div>
+    <div class="modal-body" id="postModalBody">
+
+      <div class="drop-zone" id="dropZone"
+        ondragover="e=>{e.preventDefault();document.getElementById('dropZone').classList.add('dragging')}"
+        ondragleave="document.getElementById('dropZone').classList.remove('dragging')"
+        ondrop="handleDrop(event)">
+        <input type="file" id="postImgInput" accept="image/*" onchange="previewPostImg(event)">
+        <div class="drop-icon">🖼️</div>
+        <div class="drop-text"><strong>Drop your AI art here</strong> or click to browse<br>JPG · PNG · WEBP · up to 20MB</div>
+      </div>
+
+      <div class="img-preview-wrap">
+        <img class="img-preview" id="postImgPreview" src="" alt="">
+        <button class="img-remove" id="postImgRemove" onclick="removePostImg()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Caption</label>
+        <textarea class="form-textarea" id="postCaption" placeholder="Describe your work, the vision, the feeling..." rows="3" maxlength="280"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">AI Tool Used</label>
+          <select class="form-select" id="postTool">
+            <option value="">Select tool…</option>
+            <option>Midjourney</option>
+            <option>Flux</option>
+            <option>DALL·E 3</option>
+            <option>Stable Diffusion</option>
+            <option>Adobe Firefly</option>
+            <option>Runway</option>
+            <option>Ideogram</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Movement / Tag</label>
+          <select class="form-select" id="postMovement">
+            <option value="">Select movement…</option>
+            <option>Nusantara AI</option>
+            <option>Brutalist AI</option>
+            <option>Horror Render</option>
+            <option>Architecture AI</option>
+            <option>Afrofuturism</option>
+            <option>Dreamcore</option>
+            <option>Glitch Realism</option>
+            <option>Cyber Baroque</option>
+            <option>Bio Surreal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Prompt (optional)</label>
+        <textarea class="form-textarea" id="postPrompt" placeholder="Share the prompt you used to generate this…" rows="2" maxlength="500"></textarea>
+      </div>
+
+      <div class="toggle-row">
+        <span class="toggle-label" style="font-size:0.8rem;">🔒 Keep prompt private</span>
+        <button class="toggle on" id="postPrivacy" onclick="this.classList.toggle('on')"></button>
+      </div>
+
+      <button class="btn-submit" onclick="submitPost()">Publish to UNREAL →</button>
+    </div>
+
+    <!-- Post Success -->
+    <div class="modal-body hidden" id="postSuccessBody">
+      <div class="success-screen">
+        <div class="success-icon">🎨</div>
+        <div class="success-title">Post Published!</div>
+        <div class="success-sub">Your work is now live on UNREAL. The community will see it in their feed.</div>
+        <button class="btn-submit" style="margin-top:1.5rem;" onclick="closeModal('postModal')">Back to Feed →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-  // Profile panel
-  function openProfile() {
-    document.getElementById('profileOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+// ── Modal control
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='postModal'){
+    document.getElementById('postModalBody').classList.remove('hidden');
+    document.getElementById('postSuccessBody').classList.add('hidden');
+    removePostImg();
+    document.getElementById('postCaption').value='';
+    document.getElementById('postTool').value='';
+    document.getElementById('postMovement').value='';
+    document.getElementById('postPrompt').value='';
   }
-  function closeProfile() {
-    document.getElementById('profileOverlay').classList.remove('open');
-    document.body.style.overflow = '';
+  if(id==='profileModal'){
+    // reset to step1 after close
+    setTimeout(()=>{
+      document.getElementById('profileStep1').classList.remove('hidden');
+      document.getElementById('profileStep2').classList.add('hidden');
+      document.getElementById('profileSuccess').classList.add('hidden');
+      setStepUI(1);
+    },300);
   }
-  function handleOverlayClick(e) {
-    if (e.target === document.getElementById('profileOverlay')) closeProfile();
-  }
+}
+document.querySelectorAll('.modal-backdrop').forEach(b=>{
+  b.addEventListener('click',e=>{ if(e.target===b) closeModal(b.id); });
+});
 
-  // Post modal
-  function openModal() {
-    document.getElementById('postModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeModal() {
-    document.getElementById('postModal').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function handleModalClick(e) {
-    if (e.target === document.getElementById('postModal')) closeModal();
-  }
-
-  // Feed tabs
-  document.querySelectorAll('.feed-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-    });
+// ── Profile Steps
+let currentStep=1;
+function setStepUI(n){
+  currentStep=n;
+  [1,2,3].forEach(i=>{
+    const s=document.getElementById('step'+i);
+    s.classList.remove('active','done'); s.style.opacity='0.4';
+    if(i<n){ s.classList.add('done'); s.style.opacity='1'; }
+    if(i===n){ s.classList.add('active'); s.style.opacity='1'; }
   });
-
-  // Nav items
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', e => {
-      e.preventDefault();
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      item.classList.add('active');
-    });
+  ['12','23'].forEach(k=>{
+    const l=document.getElementById('line'+k); if(!l)return;
+    const fromStep=parseInt(k[0]);
+    l.classList.toggle('done', fromStep<n);
   });
+}
+function goToStep2(){
+  const name=document.getElementById('pDisplayName').value.trim();
+  const handle=document.getElementById('pHandle').value.trim();
+  if(!name||!handle){ showToast('Please fill in your name and handle ✦'); return; }
+  document.getElementById('profileStep1').classList.add('hidden');
+  document.getElementById('profileStep2').classList.remove('hidden');
+  setStepUI(2);
+}
+function goToStep1(){
+  document.getElementById('profileStep2').classList.add('hidden');
+  document.getElementById('profileStep1').classList.remove('hidden');
+  setStepUI(1);
+}
+function submitProfile(){
+  const name=document.getElementById('pDisplayName').value.trim();
+  const handle=document.getElementById('pHandle').value.trim();
+  const bio=document.getElementById('pBio').value.trim();
+  // Update right sidebar
+  document.getElementById('navProfileName').textContent=name;
+  document.getElementById('navProfileHandle').textContent='@'+handle.replace('@','');
+  document.getElementById('navProfileBio').textContent=bio;
+  const src=document.getElementById('avatarPreviewEl').style.backgroundImage;
+  const nap=document.getElementById('navAvatarPreview');
+  if(src){ nap.style.backgroundImage=src; nap.style.backgroundSize='cover'; nap.style.backgroundPosition='center'; nap.textContent=''; }
+  document.getElementById('profileWidget').style.display='block';
+  // Show success
+  document.getElementById('profileStep2').classList.add('hidden');
+  document.getElementById('profileSuccess').classList.remove('hidden');
+  document.getElementById('successMsg').textContent=`Welcome, ${name}. Your creative identity is live on UNREAL.`;
+  setStepUI(3);
+}
 
-  // Like / save toggles
-  document.querySelectorAll('.post-action').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const icon = btn.querySelector('.post-action-icon')?.textContent;
-      if (icon === '♥') btn.classList.toggle('liked');
-      if (icon === '◻') btn.classList.toggle('saved');
-    });
-  });
+// ── Avatar preview
+function previewAvatar(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const el=document.getElementById('avatarPreviewEl');
+    el.style.backgroundImage=`url(${ev.target.result})`;
+    el.style.backgroundSize='cover';
+    el.style.backgroundPosition='center';
+    el.textContent='';
+  };
+  r.readAsDataURL(f);
+}
 
-  // Follow button toggle
-  document.querySelectorAll('.btn-follow').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.textContent === 'Follow') {
-        btn.textContent = 'Following';
-        btn.style.background = 'var(--accent)';
-        btn.style.color = 'var(--bg)';
-        btn.style.borderColor = 'var(--accent)';
-      } else {
-        btn.textContent = 'Follow';
-        btn.style.background = '';
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      }
-    });
-  });
+// ── Handle format
+function formatHandle(el){
+  el.value=el.value.replace(/[^a-z0-9_.]/gi,'').toLowerCase();
+  if(el.value&&!el.value.startsWith('@')) el.value='@'+el.value;
+}
+
+// ── Post image
+function previewPostImg(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    document.getElementById('postImgPreview').src=ev.target.result;
+    document.getElementById('postImgPreview').classList.add('show');
+    document.getElementById('postImgRemove').classList.add('show');
+    document.getElementById('dropZone').style.display='none';
+  };
+  r.readAsDataURL(f);
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragging');
+  const f=e.dataTransfer.files[0]; if(!f||!f.type.startsWith('image/'))return;
+  const inp=document.getElementById('postImgInput');
+  const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files;
+  previewPostImg({target:{files:[f]}});
+}
+function removePostImg(){
+  document.getElementById('postImgPreview').src='';
+  document.getElementById('postImgPreview').classList.remove('show');
+  document.getElementById('postImgRemove').classList.remove('show');
+  document.getElementById('dropZone').style.display='';
+  document.getElementById('postImgInput').value='';
+}
+
+// ── Submit post
+function submitPost(){
+  const caption=document.getElementById('postCaption').value.trim();
+  const tool=document.getElementById('postTool').value;
+  const movement=document.getElementById('postMovement').value;
+  if(!caption&&!tool){ showToast('Add a caption or select a tool to continue ✦'); return; }
+  // Add card to grid
+  addPostCard(caption,tool,movement);
+  document.getElementById('postModalBody').classList.add('hidden');
+  document.getElementById('postSuccessBody').classList.remove('hidden');
+}
+function addPostCard(caption,tool,movement){
+  const imgs=['photo-1518709268805-4e9042af9f23','photo-1558618666-fcd25c85cd64','photo-1486325212027-8081e485255e'];
+  const img=imgs[Math.floor(Math.random()*imgs.length)];
+  const previewSrc=document.getElementById('postImgPreview').src;
+  const grid=document.getElementById('postGrid');
+  const card=document.createElement('div'); card.className='post-card';
+  const name=document.getElementById('pDisplayName').value||'You';
+  const handle=document.getElementById('pHandle').value||'@user';
+  const avatarBg=document.getElementById('navAvatarPreview').style.backgroundImage;
+  const avatarHtml=avatarBg ? `<div style="width:28px;height:28px;border-radius:50%;background-image:${avatarBg};background-size:cover;background-position:center;flex-shrink:0;border:2px solid var(--brown-sand);"></div>` : `<img class="post-avatar" src="https://i.pravatar.cc/80?img=70" alt="">`;
+  card.innerHTML=`
+    <img class="post-img" src="${previewSrc&&previewSrc!==''?previewSrc:'https://images.unsplash.com/'+img+'?w=400&q=80'}" alt="" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80'">
+    <div class="post-body">
+      <div class="post-meta">
+        ${avatarHtml}
+        <span class="post-author">${name}</span>
+        ${movement?`<span class="post-movement">${movement}</span>`:''}
+      </div>
+      <div class="post-caption">${caption||'New creation'} ${tool?'— via '+tool:''}</div>
+      <div class="post-actions">
+        <button class="post-action" onclick="toggleLike(this)">♡ 0</button>
+        <button class="post-action">💬 0</button>
+        <button class="post-action">↗ Share</button>
+      </div>
+    </div>`;
+  grid.insertBefore(card,grid.firstChild);
+}
+
+// ── Interactions
+function toggleLike(btn){
+  const liked=btn.classList.contains('liked');
+  btn.classList.toggle('liked');
+  const count=parseInt(btn.textContent.replace(/\D/g,''));
+  btn.textContent=(liked?'♡ ':'❤️ ')+(liked?count-1:count+1);
+}
+function toggleFollow(btn){
+  btn.classList.toggle('following');
+  btn.textContent=btn.classList.contains('following')?'Following':'Follow';
+}
+function toggleChip(el){ el.classList.toggle('selected'); }
+function setSidebarActive(el){ document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function setFeedTab(el,tab){ document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function setFeedSubtab(el){ document.querySelectorAll('.feed-tab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+
+// ── Toast
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
 </script>
 </body>
 </html>
